@@ -24,8 +24,8 @@ cron "0 1,21 * * *" script-path=jd_star_shop.js,tag=明星小店
  */
 
 const $ = new Env('明星小店');
-const notify = $.isNode() ? require('./sendNotify') : '';
-const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
+const notify = $.isNode() ? require('../sendNotify') : '';
+const jdCookieNode = $.isNode() ? require('../jdCookie.js') : '';
 $.inviteCodeList = [];
 $.authorCodeList = [
   'rQI0TkBIzVwHI4fxBQnt6v0doiabNQfNdJglrUVhOP0','Rcl-dpjMZKyZUzie7lg4ow','lqU3wfq2eBw8N6pRbRBGHg','xsK-EVpDVVszF0j95pGD6g','ujizzb0mcJlnHxWODghdng','WWrct3DS6bVAZi_bxreGMIjWj0dbM-h3TRi8V-tidUU','GjWZjC07q0sWv-yzz5wp7A', 'hwm7S-8XHxl5Mpx4rzdPiBOa77Iohk-EgLxyNxi_FdE','3utidIhY2dRDe2mK6T_5G7yh_gGf1xD4vLB_05gZbw4',"0HZjTH3-lWv0qE6mCTvxas01pClGraCVZ1R-ECaEopk","oJ0Rt_cD3HfbYHOD03zHx7fs6lLGnz46irJmHUlaHaA","q27OvSQ2l66rl_t3LlXiVC9P7ql72fjBn2SatEF21DI","bPpQ7CNQkW423nK1kAq46Q","_k4tqw3KlELJH9XxQO5CrA", 'XkpuXLAvubVHX1_5cgppVA','GYv6SLEM1HE774Oiszj3hJbzz_B9k-Nh-4lrWMylsG8',"ryxvI98ll30Z-xEjQ0ZJI_Ka5LFc42WG0se5j1ybSU0","Y6Ruk4dN_x80II8Z4Awn8A","TIKBjQZhOnpCSlNhNxmP-Q","ipJvkexxbJL697gYl2ARdFVE8g4_QnmLbVGQyfXqejo","cEeoaZymvpPvgZsoyrl4BE49ZX_imzxmCrvKHer5LjY", 'nhIeMSk2UO5fhA0PGLTw3j151Q5TP8LOnxNdkyUCmMk','OB_OCfnuZze9If-n96DCsXt8Zdz3_0X0y2IZLo_V_n4', "BAHTiQ8Nq3G3G6pNnwGeQC3trj2aBNyqM3hYs1n4-fY","3g0oim_8GwLqjbT_zh4cvG_DjGwx8dpU2ncgE1MHr6c","9GuvyBEGOaOt8OBOtCW0OQ","22M7P1iwXb2UxYtcZDrmnqcPeQbAwO5HLvg51tB6qpk","A_4ku8sHjGxvkUgxP3_i_Q","mwS23EsQnjj-mViVqYPlFgtPhKsisKarv3GKZKC0n38","WxUkszrzV_sgvHgfjeOazA","qXBK2YHoFjuNubhbXrXn2g","uY2YOhgwbc2OUUXS0antEQ","q9Ywm-xZ14F1DXfV5I51OQ","fbgxyM40fG86ZcA7DLJjNw","6JiDdfsOOnrfPKGPcWR4RQ","UBIG8bGwOdw6ctKJ1Rrbmg_nv42Am9DJrcdJYIjZqzk","MGBsMlJDZt9HqrRvsyqCiw","IJdg-7-cC16Ml7on84Wgsg",
@@ -264,7 +264,7 @@ async function guafen(){
     'Cookie': $.cookie,
     'Accept-Encoding': `gzip, deflate, br`,
     'Accept-Language': `zh-cn`,
-    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
+    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('../USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
     'Referer': `https://h5.m.jd.com/babelDiy/Zeus/3Vuj8Uw26NEDNRjaT2uspf2pphK/index.html`,
     'Content-Type':`application/x-www-form-urlencoded;charset=UTF-8`,
     'Accept': `application/json, text/plain, */*`,
@@ -313,7 +313,7 @@ async function help(){
     'Cookie': $.cookie,
     'Accept-Encoding': `gzip, deflate, br`,
     'Accept-Language': `zh-cn`,
-    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
+    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('../USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
     'Referer': `https://h5.m.jd.com/babelDiy/Zeus/3Vuj8Uw26NEDNRjaT2uspf2pphK/index.html`,
     'Content-Type':`application/x-www-form-urlencoded;charset=UTF-8`,
     'Accept': `application/json, text/plain, */*`,
@@ -343,7 +343,7 @@ async function drawAward(){
     'Cookie': $.cookie,
     'Accept-Encoding': `gzip, deflate, br`,
     'Accept-Language': `zh-cn`,
-    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
+    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('../USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
     'Referer': `https://h5.m.jd.com/babelDiy/Zeus/3Vuj8Uw26NEDNRjaT2uspf2pphK/index.html`,
     'Content-Type':`application/x-www-form-urlencoded;charset=UTF-8`,
     'Accept': `application/json, text/plain, */*`,
@@ -372,7 +372,7 @@ async function doXdzTask(){
     'Cookie': $.cookie,
     'Accept-Encoding': `gzip, deflate, br`,
     'Accept-Language': `zh-cn`,
-    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
+    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('../USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
     'Referer': `https://h5.m.jd.com/babelDiy/Zeus/3Vuj8Uw26NEDNRjaT2uspf2pphK/index.html`,
     'Content-Type':`application/x-www-form-urlencoded;charset=UTF-8`,
     'Accept': `application/json, text/plain, */*`,
@@ -403,7 +403,7 @@ async function getXdzUseInfo(){
     'Cookie': $.cookie,
     'Accept-Encoding': `gzip, deflate, br`,
     'Accept-Language': `zh-cn`,
-    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
+    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('../USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
     'Referer': `https://h5.m.jd.com/babelDiy/Zeus/3Vuj8Uw26NEDNRjaT2uspf2pphK/index.html`,
     'Content-Type':`application/x-www-form-urlencoded;charset=UTF-8`,
     'Accept': `application/json, text/plain, */*`,
@@ -434,7 +434,7 @@ async function getXdzInfo(){
     'Cookie': $.cookie,
     'Accept-Encoding': `gzip, deflate, br`,
     'Accept-Language': `zh-cn`,
-    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
+    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('../USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
     'Referer': `https://h5.m.jd.com/babelDiy/Zeus/3Vuj8Uw26NEDNRjaT2uspf2pphK/index.html`,
     'Content-Type':`application/x-www-form-urlencoded;charset=UTF-8`,
     'Accept': `application/json, text/plain, */*`,
@@ -467,7 +467,7 @@ async function getReward() {
     'Accept': `application/json, text/plain, */*`,
     'Referer': `https://prodev.m.jd.com/mall/active/7s5TYVpp8dKXF4FrDqe55H8esSV/index.html`,
     'Host': `api.m.jd.com`,
-    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
+    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('../USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
     'Accept-Encoding': `gzip, deflate, br`,
     'Accept-Language': `zh-cn`
   };
@@ -656,7 +656,7 @@ function getPostRequest(body) {
     'Content-Type': `application/x-www-form-urlencoded`,
     'Host': `api.m.jd.com`,
     'Connection': `keep-alive`,
-    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
+    'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('../USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
     'Referer': `https://prodev.m.jd.com/mall/active/b68M1tZSjGrMYa64hMKsX5jRdWL/index.html`,
     'Accept-Language': `zh-cn`
   };
@@ -676,7 +676,7 @@ function TotalBean() {
         "Connection": "keep-alive",
         "Cookie": $.cookie,
         "Referer": "https://wqs.jd.com/my/jingdou/my.shtml?sceneval=2",
-        "User-Agent": $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1")
+        "User-Agent": $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('../USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1")
       }
     }
     $.post(options, (err, resp, data) => {
