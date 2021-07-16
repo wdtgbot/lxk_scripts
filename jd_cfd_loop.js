@@ -163,7 +163,7 @@ async function speedUp() {
                     console.log(`${$.name} SpeedUp API请求失败，请检查网路重试`)
                 } else {
                     data = JSON.parse(data);
-                    console.log(`今日热气球已接待 ${data.dwTodaySpeedPeople} 人\n`)
+                    console.log(`今日热气球已接待 ${data.dwTodaySpeedPeople} 人`)
                 }
             } catch (e) {
                 $.logErr(e, resp);
