@@ -75,9 +75,11 @@ async function cfd() {
             return
         }
         await $.wait(2000)
-        await speedUp()
-        await $.wait(2000)
-        await queryshell()
+        for (let i = 0; i < 10; i++) {
+            await speedUp()
+            await $.wait(1000)
+            await queryshell()
+        }
     } catch (e) {
         $.logErr(e)
     }
