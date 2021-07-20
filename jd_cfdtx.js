@@ -3,23 +3,23 @@
 cron 0 0 * * * jd_cfdtx.js
 更新时间：2021-7-20
 活动入口：京喜APP-我的-京喜财富岛提现
-已支持IOS, Node.js支持N个京东账号
-脚本兼容: QuantumultX, Surge, Loon, 小火箭，JSBox, Node.js
 
+已支持IOS双京东账号,Node.js支持N个京东账号
+脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
 ============Quantumultx===============
 [task_local]
 #京喜财富岛提现
-0 0 * * * jd_cfdtx.js, tag=京喜财富岛提现, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jd_redPacket.png, enabled=true
+0 0 * * * https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_cfdtx.js, tag=京喜财富岛提现, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jxcfd.png, enabled=true
 
 ================Loon==============
 [Script]
-cron "0 0 * * *" script-path=jd_cfdtx.js, tag=京喜财富岛提现
+cron "0 0 * * *" script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_cfdtx.js,tag=京喜财富岛提现
 
 ===============Surge=================
-京喜财富岛提现 = type=cron,cronexp="0 0 * * *",wake-system=1,timeout=3600,script-path=jd_cfdtx.js
+京喜财富岛提现 = type=cron,cronexp="0 0 * * *",wake-system=1,timeout=3600,script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_cfdtx.js
 
 ============小火箭=========
-京喜财富岛提现 = type=cron,script-path=jd_cfdtx.js, cronexpr="0 0 * * *", timeout=3600, enable=true
+京喜财富岛提现 = type=cron,script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_cfdtx.js, cronexpr="0 0 * * *", timeout=3600, enable=true
  */
 const $ = new Env("京喜财富岛提现");
 
@@ -75,16 +75,7 @@ let nowTimes = new Date(new Date().getTime() + new Date().getTimezoneOffset() * 
             $.nickName = '';
             $.isLogin = true;
             message = ''
-            await TotalBean();
             console.log(`\n******开始【京东账号${$.index}】${$.nickName || $.UserName}*********\n`);
-            if (!$.isLogin) {
-                $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
-
-                if ($.isNode()) {
-                    await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
-                }
-                continue
-            }
             $.info = {}
             token = await getJxToken()
             await cfd();
@@ -109,11 +100,11 @@ async function cfd() {
             }
         }
 
-        const beginInfo = await getUserInfo(false);
-        if (beginInfo.Fund.ddwFundTargTm === 0) {
-            console.log(`还未开通活动，请先开通\n`)
-            return
-        }
+        // const beginInfo = await getUserInfo(false);
+        // if (beginInfo.Fund.ddwFundTargTm === 0) {
+        //     console.log(`还未开通活动，请先开通\n`)
+        //     return
+        // }
 
         await cashOutQuali()
         await userCashOutState()
