@@ -7,14 +7,14 @@
 =================================Quantumultx=========================
 [task_local]
 #京喜财富岛
-10 3-20/1 * * * https://raw.githubusercontent.com/jiulan/platypus/main/scripts/jd_cfd.js, tag=京喜财富岛, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
+10 3-20/1 * * * https://raw.githubusercontent.com/jiulan/platypus/main/scripts/jd_cfd_new.js, tag=京喜财富岛, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
 =================================Loon===================================
 [Script]
-cron "10 3-20/1 * * *" script-path=https://raw.githubusercontent.com/jiulan/platypus/main/scripts/jd_cfd.js,tag=京喜财富岛
+cron "10 3-20/1 * * *" script-path=https://raw.githubusercontent.com/jiulan/platypus/main/scripts/jd_cfd_new.js,tag=京喜财富岛
 ===================================Surge================================
-京喜财富岛 = type=cron,cronexp="10 3-20/1 * * *",wake-system=1,timeout=3600,script-path=https://raw.githubusercontent.com/jiulan/platypus/main/scripts/jd_cfd.js
+京喜财富岛 = type=cron,cronexp="10 3-20/1 * * *",wake-system=1,timeout=3600,script-path=https://raw.githubusercontent.com/jiulan/platypus/main/scripts/jd_cfd_new.js
 ====================================小火箭=============================
-京喜财富岛 = type=cron,script-path=https://raw.githubusercontent.com/jiulan/platypus/main/scripts/jd_cfd.js, cronexpr="10 3-20/1 * * *", timeout=3600, enable=true
+京喜财富岛 = type=cron,script-path=https://raw.githubusercontent.com/jiulan/platypus/main/scripts/jd_cfd_new.js, cronexpr="10 3-20/1 * * *", timeout=3600, enable=true
  */
 const $ = new Env('财富大陆');
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
@@ -345,15 +345,12 @@ async function sign(){
         }
       }
     }
-
     if($.Aggrtask && $.Aggrtask.Data && $.Aggrtask.Data.Employee && $.Aggrtask.Data.Employee.EmployeeList){
-      if($.Aggrtask.Data && $.Aggrtask.Data.Employee && !$.Aggrtask.Data.Employee.EmployeeList){
-        console.log(`\n领取邀请奖励`)
-        for(let i of $.Aggrtask.Data.Employee.EmployeeList){
-          if(i.dwStatus == 0){
-            let res = await taskGet(`story/helpdraw`, '_cfd_t,bizCode,dwEnv,dwUserId,ptag,source,strZone', `&ptag=&dwUserId=${i.dwId}`)
-            await printRes(res, '邀请奖励')
-          }
+      console.log(`\n领取邀请奖励`)
+      for(let i of $.Aggrtask.Data.Employee.EmployeeList){
+        if(i.dwStatus == 0){
+          let res = await taskGet(`story/helpdraw`, '_cfd_t,bizCode,dwEnv,dwUserId,ptag,source,strZone', `&ptag=&dwUserId=${i.dwId}`)
+          await printRes(res, '邀请奖励')
         }
       }
     }
