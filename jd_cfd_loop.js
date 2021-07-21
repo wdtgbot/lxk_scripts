@@ -58,7 +58,7 @@ $.appId = 10028;
                 }
                 $.info = {}
                 await cfd();
-                let time = getRndInteger(2000, 5000)
+                let time = getRndInteger(500, 1000)
                 await $.wait(time)
             }
         }
@@ -74,7 +74,7 @@ async function cfd() {
             console.log(`还未开通活动，请先开通\n`)
             return
         }
-        await $.wait(2000)
+        await $.wait(500)
         await speedUp()
     } catch (e) {
         $.logErr(e)
