@@ -280,7 +280,6 @@ function shareCodesFormat() {
 }
 function requireConfig() {
   return new Promise(async resolve => {
-    await getAuthorShareCode()
     console.log(`开始获取${$.name}配置文件\n`);
     //Node.js用户请在jdCookie.js处填写京东ck;
     const shareCodes = [] //$.isNode() ? require('./jdSplitShareCodes.js') : '';
@@ -297,22 +296,7 @@ function requireConfig() {
     resolve()
   })
 }
-function getAuthorShareCode() {
-  return new Promise(resolve => {
-    $.get({url: "https://cdn.jsdelivr.net/gh/shylocks/updateTeam@main/jd_digital_floor"}, async (err, resp, data) => {
-      try {
-        if (err) {
-        } else {
-          inviteCodes[0] = data.replace('\n', '')
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve();
-      }
-    })
-  })
-}
+
 function taskPostUrl(function_id, body) {
   return {
     url: `${JD_API_HOST}${function_id}?t=${new Date().getTime() + new Date().getTimezoneOffset()*60*1000 + 8*60*60*1000}`,
