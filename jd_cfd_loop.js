@@ -74,8 +74,11 @@ async function cfd() {
             console.log(`还未开通活动，请先开通\n`)
             return
         }
-        await $.wait(500)
-        await speedUp()
+        //老板加钱说一次放十个
+        for (let i = 0; i < 10; i++) {
+            await $.wait(500)
+            await speedUp()
+        }
     } catch (e) {
         $.logErr(e)
     }
