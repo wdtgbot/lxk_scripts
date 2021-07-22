@@ -4,6 +4,8 @@
 活动时间：长期
 更新时间：2021-07-13 12:00
 脚本兼容: QuantumultX, Surge,Loon, JSBox, Node.js
+#是否建筑升级
+export JD_CFD_LVL_UP="false"
 =================================Quantumultx=========================
 [task_local]
 #京喜财富岛
