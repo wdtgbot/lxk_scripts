@@ -201,7 +201,7 @@ async function userCashOutState(type = true) {
                             if (data.ddwUsrTodayGetRich >= data.ddwTodayTargetUnLockRich) {
                                 for (let key of Object.keys(data.UsrCurrCashList).reverse()) {
                                     let vo = data.UsrCurrCashList[key]
-                                    if (vo.dwDefault === 1) {
+                                    if (vo.dwRemain > 0) {
                                         let cashOutRes = await cashOut(vo.ddwMoney, vo.ddwPaperMoney)
                                         if (cashOutRes.iRet === 0) {
                                             $.money = vo.ddwMoney / 100
