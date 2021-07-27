@@ -199,6 +199,7 @@ async function userCashOutState(type = true) {
                     if (type) {
                         if (data.dwTodayIsCashOut !== 1) {
                             if (data.ddwUsrTodayGetRich >= data.ddwTodayTargetUnLockRich) {
+                                console.log("data.UsrCurrCashList",data.UsrCurrCashList)
                                 for (let key of Object.keys(data.UsrCurrCashList).reverse()) {
                                     let vo = data.UsrCurrCashList[key]
                                     if (vo.dwRemain > 0) {
