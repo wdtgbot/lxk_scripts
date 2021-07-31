@@ -124,3 +124,5 @@
 15 0,12,22 * * * node /scripts/jd_jxmc.js >> /scripts/logs/jd_jxmc.log 2>&1
 #京喜财富岛提现
 59 23,11 * * * node /scripts/jd_cfdtx.js >> /scripts/logs/jd_cfdtx.log 2>&1
+#京喜签到
+20 1 * * * node /scripts/jx_sign.js >> /scripts/logs/jx_sign.log 2>&1
