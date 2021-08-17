@@ -151,14 +151,18 @@ async function doGetReward() {
 async function doCultureBean() {
   await plantBeanIndex();
   if ($.plantBeanIndexResult && $.plantBeanIndexResult.code === '0') {
-    const plantBeanRound = $.plantBeanIndexResult.data.roundList[2]
+    const plantBeanRound = $.plantBeanIndexResult.data.roundList[1]
     if (plantBeanRound.roundState === '2') {
       //收取营养液
       if (plantBeanRound.bubbleInfos && plantBeanRound.bubbleInfos.length) console.log(`开始收取营养液`)
       for (let bubbleInfo of plantBeanRound.bubbleInfos) {
         console.log(`收取-${bubbleInfo.name}-的营养液`)
         await cultureBean(plantBeanRound.roundId, bubbleInfo.nutrientsType)
-        console.log(`收取营养液结果:${JSON.stringify($.cultureBeanRes)}`)
+        if ($.cultureBeanRes.code === '0'){
+          console.log(`收取营养液成功`)
+        }else {
+          console.log(`收取营养液结果:${JSON.stringify($.cultureBeanRes)}`)
+        }
       }
     }
   } else {
