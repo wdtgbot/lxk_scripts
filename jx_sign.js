@@ -1,6 +1,6 @@
 /*
 京喜签到
-cron 20 1 * * * jx_sign.js
+cron 20 1,8 * * * jx_sign.js
 更新时间：2021-7-31
 活动入口：京喜APP-我的-京喜签到
 
@@ -9,17 +9,17 @@ cron 20 1 * * * jx_sign.js
 ============Quantumultx===============
 [task_local]
 #京喜签到
-20 1 * * * jx_sign.js, tag=京喜签到, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
+20 1,8 * * * jx_sign.js, tag=京喜签到, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
 
 ================Loon==============
 [Script]
-cron "20 1 * * *" script-path=jx_sign.js,tag=京喜签到
+cron "20 1,8 * * *" script-path=jx_sign.js,tag=京喜签到
 
 ===============Surge=================
-京喜签到 = type=cron,cronexp="20 1 * * *",wake-system=1,timeout=3600,script-path=jx_sign.js
+京喜签到 = type=cron,cronexp="20 1,8 * * *",wake-system=1,timeout=3600,script-path=jx_sign.js
 
 ============小火箭=========
-京喜签到 = type=cron,script-path=jx_sign.js, cronexpr="20 1 * * *", timeout=3600, enable=true
+京喜签到 = type=cron,script-path=jx_sign.js, cronexpr="20 1,8 * * *", timeout=3600, enable=true
  */
 const $ = new Env('京喜签到');
 const JD_API_HOST = "https://m.jingxi.com/";
@@ -184,7 +184,7 @@ function signhb(type = 1) {
               for (let key of Object.keys(signlist)) {
                 let vo = signlist[key]
                 if (vo.istoday === 1) {
-                  if (vo.status === 1 && vo.tasklist.signtask.status === 1) {
+                  if (vo.status === 1 && data.signtask.status === 1) {
                     console.log(`今日已签到`)
                     $.canHelp = false
                   } else {
@@ -233,7 +233,7 @@ function helpSignhb(smp = '') {
           for (let key of Object.keys(signlist)) {
             let vo = signlist[key]
             if (vo.istoday === 1) {
-              if (vo.status === 1 && vo.tasklist.signtask.status === 1) {
+              if (vo.status === 1 && data.signtask.status === 1) {
                 // console.log(`今日已签到`)
               } else {
                 console.log(`此账号已黑`)
@@ -366,9 +366,9 @@ function randomString() {
 function TotalBean() {
   return new Promise(async resolve => {
     const options = {
-      url: "https://me-api.jd.com/user_new/info/GetJDUserInfoUnion",
+      url: "https://wq.jd.com/user_new/info/GetJDUserInfoUnion?sceneval=2",
       headers: {
-        Host: "me-api.jd.com",
+        Host: "wq.jd.com",
         Accept: "*/*",
         Connection: "keep-alive",
         Cookie: cookie,
@@ -385,11 +385,11 @@ function TotalBean() {
         } else {
           if (data) {
             data = JSON.parse(data);
-            if (data['retcode'] === "1001") {
+            if (data['retcode'] === 1001) {
               $.isLogin = false; //cookie过期
               return;
             }
-            if (data['retcode'] === "0" && data.data && data.data.hasOwnProperty("userInfo")) {
+            if (data['retcode'] === 0 && data.data && data.data.hasOwnProperty("userInfo")) {
               $.nickName = data.data.userInfo.baseInfo.nickname;
             }
           } else {
