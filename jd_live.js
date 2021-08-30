@@ -1,6 +1,9 @@
 /*
 京东直播
 活动结束时间未知
+
+@感谢 小小 提供脚本雏形
+
 活动入口：京东APP首页-京东直播
 地址：https://h5.m.jd.com/babelDiy/Zeus/2zwQnu4WHRNfqMSdv69UPgpZMnE2/index.html/
 已支持IOS双京东账号,Node.js支持N个京东账号
@@ -8,20 +11,19 @@
 ============Quantumultx===============
 [task_local]
 #京东直播
-10-20/5 12 * * * jd_live.js, tag=京东直播, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
+10-20/5 12 * * * https://raw.githubusercontent.com/hyzaw/scripts/main/jd_live.js, tag=京东直播, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
 
 ================Loon==============
 [Script]
-cron "10-20/5 12 * * *" script-path=jd_live.js,tag=京东直播
+cron "10-20/5 12 * * *" script-path=https://raw.githubusercontent.com/hyzaw/scripts/main/jd_live.js,tag=京东直播
 
 ===============Surge=================
-京东直播 = type=cron,cronexp="10-20/5 12 * * *",wake-system=1,timeout=3600,script-path=jd_live.js
+京东直播 = type=cron,cronexp="10-20/5 12 * * *",wake-system=1,timeout=3600,script-path=https://raw.githubusercontent.com/hyzaw/scripts/main/jd_live.js
 
 ============小火箭=========
-京东直播 = type=cron,script-path=jd_live.js, cronexpr="10-20/5 12 * * *", timeout=3600, enable=true
+京东直播 = type=cron,script-path=https://raw.githubusercontent.com/hyzaw/scripts/main/jd_live.js, cronexpr="10-20/5 12 * * *", timeout=3600, enable=true
  */
 const $ = new Env('京东直播');
-
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
@@ -88,7 +90,7 @@ function showMsg() {
     if (!jdNotify) {
       $.msg($.name, '', `${message}`);
     } else {
-      $.log(`京东账号${$.index}${$.nickName}\n${message}`);
+      $.log(`\n\n京东账号${$.index}${$.nickName}\n${message}`);
     }
     resolve()
   })
@@ -106,12 +108,14 @@ function getTaskList() {
         } else {
           if (safeGet(data)) {
             data = JSON.parse(data);
-            for (let key of Object.keys(data.data.task)) {
-              let vo = data.data.task[key]
-              if (vo.state !== 3) {
-                let authorId = (await getauthorId(vo.extra.liveId)).data.author.authorId
-                await superTask(vo.extra.liveId, authorId)
-                await awardTask("starViewTask", vo.extra.liveId)
+            if (data.data.starLiveList) {
+              for (let key of Object.keys(data.data.starLiveList)) {
+                let vo = data.data.starLiveList[key]
+                if (vo.state !== 3) {
+                  let authorId = (await getauthorId(vo.extra.liveId)).data.author.authorId
+                  await superTask(vo.extra.liveId, authorId)
+                  await awardTask("starViewTask", vo.extra.liveId)
+                }
               }
             }
             console.log(`去做分享直播间任务`)
@@ -291,7 +295,7 @@ function getSign(functionid, body, uuid) {
       "clientVersion":"10.1.0"
     }
     let options = {
-      url: `https://jdsign.cf/ddo`,
+      url: `https://cdn.xia.me/ddo`,
       body: JSON.stringify(data),
       headers: {
         "Host": "jdsign.tk",
