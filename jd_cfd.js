@@ -36,9 +36,6 @@ function randomString(e) {
 }
 $.InviteList = []
 $.innerInviteList = [];
-const HelpAuthorFlag = true;//是否助力作者SH  true 助力，false 不助力
-const buildFlag = true;//是否执行建筑升级 true 升级，false 手动
-
 //是否建筑升级
 let buildLvlUp = true;
 // 热气球接客 每次运行接客次数
