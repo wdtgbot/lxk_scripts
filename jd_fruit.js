@@ -118,7 +118,7 @@ async function jdFruit() {
       console.log(`初始化农场数据异常, 请登录京东 app查看农场0元水果功能是否正常,农场初始化数据: ${JSON.stringify($.farmInfo)}`);
       console.log(`等待10秒后重试`);
       await $.wait(10000);
-      await jdFruit();
+      // await jdFruit();
     }
   } catch (e) {
     console.log(`任务执行异常，请检查执行日志 ‼️‼️`);
@@ -1203,7 +1203,7 @@ async function initForFarm() {
 async function taskInitForFarm() {
   console.log('\n初始化任务列表')
   const functionId = arguments.callee.name.toString();
-  $.farmTask = await request(functionId, {"version": 14, "channel": 1, "babelChannel":"45"});
+  $.farmTask = await request(functionId, {"version": 14, "channel": 1, "babelChannel":"120"});
 }
 //获取好友列表API
 async function friendListInitForFarm() {
