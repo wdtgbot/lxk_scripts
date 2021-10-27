@@ -161,11 +161,25 @@ async function sendNotify(text, desp, params = {}, author = '\n\n仅供用于学
     BarkNotify(text, desp, params),//iOS Bark APP
     tgBotNotify(text, desp),//telegram 机器人
     ddBotNotify(text, desp),//钉钉机器人
-    qywxBotNotify(text, desp), //企业微信机器人
+    //qywxBotNotify(text, desp), //企业微信机器人
     qywxamNotify(text, desp), //企业微信应用消息推送
     iGotNotify(text, desp, params),//iGot
     //CoolPush(text, desp)//QQ酷推
   ])
+  let qywxMax = 2000;
+  if (desp.length > qywxMax){
+    for (let i = 0; i < desp.length; i=i+qywxMax) {
+      await Promise.all([
+        qywxBotNotify(text, desp.substring(i ,Math.min(i+qywxMax,desp.length))) //企业微信机器人
+      ])
+    }
+
+  }else {
+
+    await Promise.all([
+      qywxBotNotify(text, desp) //企业微信机器人
+    ])
+  }
 }
 
 function serverNotify(text, desp, time = 2100) {
@@ -620,7 +634,7 @@ function iGotNotify(text, desp, params={}){
       if(!IGOT_PUSH_KEY_REGX.test(IGOT_PUSH_KEY)) {
         console.log('您所提供的IGOT_PUSH_KEY无效\n')
         resolve()
-        return 
+        return
       }
       const options = {
         url: `https://push.hellyw.com/${IGOT_PUSH_KEY.toLowerCase()}`,
