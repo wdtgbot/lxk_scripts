@@ -1,6 +1,6 @@
 /*
 京喜牧场
-更新时间：2021-10-19
+更新时间：2021-10-30  https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_jxmc.js
 活动入口：京喜APP-我的-京喜牧场
 温馨提示：请先手动完成【新手指导任务】再运行脚本
 脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
@@ -24,23 +24,45 @@ const $ = new Env('京喜牧场');
 const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 //京喜APP的UA。领取助力任务奖励需要京喜APP的UA,环境变量：JX_USER_AGENT，有能力的可以填上自己的UA
-const JXUserAgent =  $.isNode() ? (process.env.JX_USER_AGENT ? process.env.JX_USER_AGENT : ``):``;
+const JXUserAgent = $.isNode() ? (process.env.JX_USER_AGENT ? process.env.JX_USER_AGENT : ``) : ``;
 $.inviteCodeList = [];
 let cookiesArr = [];
 let UA, token, UAInfo = {}
 $.appId = 10028;
 $.helpCkList = [];
 let cardinfo = {
-  "16":"小黄鸡",
-  "17":"辣子鸡",
-  "18":"未知",
-  "19":"未知"
+  "16": "小黄鸡",
+  "17": "辣子鸡",
+  "18": "猪肚鸡",
+  "19": "椰子鸡"
+}
+const petInfo = {
+  "4": {
+    name: "猪肚鸡",
+    price: 412 * 1e3,
+    weights: 2288.889 // 每个蛋的成本
+  },
+  "5": {
+    name: "椰子鸡",
+    price: 3355 * 1e2,
+    weights: 2795.833
+  },
+  "3": {
+    name: "辣子鸡",
+    price: 2975 * 1e2,
+    weights: 2975.0
+  },
+  "1": {
+    name: "小黄鸡",
+    price: 25 * 1e4,
+    weights: 3125.0
+  },
 }
 if ($.isNode()) {
   Object.keys(jdCookieNode).forEach((item) => {
     cookiesArr.push(jdCookieNode[item])
   })
-  if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
+  if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => { };
 } else {
   cookiesArr = [$.getdata("CookieJD"), $.getdata("CookieJD2"), ...$.toObj($.getdata("CookiesJD") || "[]").map((item) => item.cookie)].filter((item) => !!item);
 }
@@ -48,11 +70,11 @@ if ($.isNode()) {
   $.CryptoJS = $.isNode() ? require('crypto-js') : CryptoJS;
   await requestAlgo();
   if (!cookiesArr[0]) {
-    $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
+    $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', { "open-url": "https://bean.m.jd.com/bean/signIndex.action" });
     return;
   }
   console.log('京喜牧场\n' +
-      '更新时间：2021-10-19\n' +
+      '更新时间：2021-10-30\n' +
       '活动入口：京喜APP-我的-京喜牧场\n' +
       '温馨提示：请先手动完成【新手指导任务】再运行脚本')
   for (let i = 0; i < cookiesArr.length; i++) {
@@ -66,7 +88,7 @@ if ($.isNode()) {
     $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
     console.log(`\n*****开始【京东账号${$.index}】${$.nickName || $.UserName}*****\n`);
     if (!$.isLogin) {
-      $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
+      $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, { "open-url": "https://bean.m.jd.com/bean/signIndex.action" });
 
       if ($.isNode()) {
         await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
@@ -79,7 +101,7 @@ if ($.isNode()) {
   }
   console.log('\n##################开始账号内互助#################\n');
   let newCookiesArr = [];
-  for(let i = 0; i < $.helpCkList.length; i += 4) {
+  for (let i = 0; i < $.helpCkList.length; i += 4) {
     newCookiesArr.push($.helpCkList.slice(i, i + 4))
   }
   for (let i = 0; i < newCookiesArr.length; i++) {
@@ -104,7 +126,7 @@ if ($.isNode()) {
       token = await getJxToken()
       for (let k = 0; k < codeList.length; k++) {
         $.oneCodeInfo = codeList[k];
-        if(codeList[k].name === $.UserName){
+        if (codeList[k].name === $.UserName) {
           continue;
         } else {
           console.log(`\n${$.UserName}去助力${codeList[k].name},助力码：${codeList[k].code}\n`);
@@ -136,14 +158,20 @@ async function pasture() {
         console.log(`\n温馨提示：${$.UserName} 请先手动完成【新手指导任务】再运行脚本再运行脚本\n`);
         return;
       }
-      if ($.homeInfo.maintaskId !== "pause") {
+      $.currentStep = $.homeInfo?.finishedtaskId
+      console.log(`打印新手流程进度：当前进度：${$.currentStep}，下一流程：${$.homeInfo.maintaskId}`)
+      if ($.homeInfo.maintaskId !== "pause" || isNew($.currentStep)) {
         console.log(`开始初始化`)
-        $.step = $.homeInfo.maintaskId
+        $.step = isNew($.currentStep) ? isNew($.currentStep, true) : $.homeInfo.maintaskId
         await takeGetRequest('DoMainTask');
         for (let i = 0; i < 20; i++) {
           if ($.DoMainTask.maintaskId !== "pause") {
             await $.wait(2000)
+            $.currentStep = $.DoMainTask?.finishedtaskId
             $.step = $.DoMainTask.maintaskId
+            await takeGetRequest('DoMainTask');
+          } else if (isNew($.currentStep)) {
+            $.step = isNew($.currentStep, true)
             await takeGetRequest('DoMainTask');
           } else {
             console.log(`初始化成功\n`)
@@ -156,9 +184,9 @@ async function pasture() {
       $.helpCkList.push($.cookie);
       $.inviteCodeList.push(
           {
-            'use':$.UserName,
-            'code':$.homeInfo.sharekey,
-            'max':false
+            'use': $.UserName,
+            'code': $.homeInfo.sharekey,
+            'max': false
           }
       );
       await $.wait(2000)
@@ -168,6 +196,12 @@ async function pasture() {
         for (let vo of $.GetCardInfo.cardinfo) {
           if (vo.currnum > 0) {
             msg += `${vo.currnum}张${cardinfo[vo.cardtype]}卡片 `
+          }
+          $.cardType = vo.cardtype
+          for (let i = vo.currnum; i >= vo.neednum; i -= vo.neednum) {
+            console.log(`${cardinfo[vo.cardtype]}卡片已满${vo.neednum}张，去兑换...`)
+            await $.wait(5000)
+            await takeGetRequest("Combine")
           }
         }
         console.log(`\n可抽奖次数：${$.GetCardInfo.times}${msg ? `,拥有卡片：${msg}` : ''}\n`)
@@ -180,8 +214,28 @@ async function pasture() {
           console.log('')
         }
       }
-      for (let i = 0; i < $.homeInfo.petinfo.length; i++) {
+      console.log("查看宠物信息")
+      const petNum = ($.homeInfo?.petinfo || []).length
+      if (!petNum) {
+        console.log(`你的鸡都生完蛋跑掉啦！！`)
+        await buyNewPet(true)
+      }
+      for (let i = 0; i < petNum; i++) {
         $.onepetInfo = $.homeInfo.petinfo[i];
+        const { bornvalue, progress, strong, type, stage } = $.onepetInfo
+        switch (stage) {
+          case 1:
+            console.log(`这里有一只幼年${petInfo[type].name}，成长进度：${progress}%`)
+            break
+          case 2:
+            console.log(`这里有一只青年${petInfo[type].name}，生蛋进度：${bornvalue}/${strong}，成长进度：${progress}%`)
+            break
+          case 4:
+            console.log(`这里有一只壮年${petInfo[type].name}，离家出走进度（生蛋进度）：${bornvalue}/${strong}`)
+            break
+          default:
+            console.log(`这里有一只不知道什么状态的鸡：${JSON.stringify($.onepetInfo)}`)
+        }
         $.petidList.push($.onepetInfo.petid);
         if ($.onepetInfo.cangetborn === 1) {
           console.log(`开始收鸡蛋`);
@@ -194,17 +248,17 @@ async function pasture() {
     $.GetVisitBackInfo = {};
     await $.wait(2000);
     await takeGetRequest('GetVisitBackInfo');
-    if($.GetVisitBackInfo.iscandraw === 1){
+    if ($.GetVisitBackInfo.iscandraw === 1) {
       await $.wait(2000);
       await takeGetRequest('GetVisitBackCabbage');
     }
     await $.wait(2000);
     $.GetSignInfo = {};
     await takeGetRequest('GetSignInfo');
-    if(JSON.stringify($.GetSignInfo) !== '{}' && $.GetSignInfo.signlist){
+    if (JSON.stringify($.GetSignInfo) !== '{}' && $.GetSignInfo.signlist) {
       let signList = $.GetSignInfo.signlist;
       for (let j = 0; j < signList.length; j++) {
-        if(signList[j].fortoday && !signList[j].hasdone){
+        if (signList[j].fortoday && !signList[j].hasdone) {
           await $.wait(2000);
           console.log(`去签到`);
           await takeGetRequest('GetSignReward');
@@ -217,8 +271,20 @@ async function pasture() {
       await takeGetRequest('cow');
       await $.wait(2000);
     }
+    await $.wait(2000);
+    await takeGetRequest('GetUserLoveInfo');
+    for (let key of Object.keys($.GetUserLoveInfo)) {
+      let vo = $.GetUserLoveInfo[key]
+      if (vo.drawstatus === 1) {
+        await $.wait(2000);
+        $.lovevalue = vo.lovevalue;
+        await takeGetRequest('DrawLoveHongBao');
+      }
+    }
     $.taskList = [];
     $.dateType = ``;
+    $.source = `jxmc`;
+    $.bizCode = `jxmc`;
     for (let j = 2; j >= 0; j--) {
       if (j === 0) {
         $.dateType = ``;
@@ -256,6 +322,17 @@ async function pasture() {
         }
       }
     }
+    $.taskList = [];
+    $.dateType = `2`;
+    $.source = `jxmc_zanaixin`;
+    $.bizCode = `jxmc_zanaixin`;
+    for (let j = 2; j >= 0; j--) {
+      await takeGetRequest('GetUserTaskStatusList');
+      await $.wait(2000);
+      await doTask(j);
+      await $.wait(2000);
+    }
+
     await takeGetRequest('GetHomePageInfo');
     await $.wait(2000);
     let materialNumber = 0;
@@ -269,7 +346,7 @@ async function pasture() {
     if (Number($.homeInfo.coins) > 5000) {
       let canBuyTimes = Math.floor(Number($.homeInfo.coins) / 5000);
       console.log(`\n共有金币${$.homeInfo.coins},可以购买${canBuyTimes}次白菜`);
-      if(Number(materialNumber) < 400){
+      if (Number(materialNumber) < 400) {
         for (let j = 0; j < canBuyTimes && j < 4; j++) {
           console.log(`第${j + 1}次购买白菜`);
           await takeGetRequest('buy');
@@ -277,10 +354,10 @@ async function pasture() {
         }
         await takeGetRequest('GetHomePageInfo');
         await $.wait(2000);
-      }else{
+      } else {
         console.log(`现有白菜${materialNumber},大于400颗,不进行购买`);
       }
-    }else{
+    } else {
       console.log(`\n共有金币${$.homeInfo.coins}`);
     }
     materialinfoList = $.homeInfo.materialinfo;
@@ -317,6 +394,30 @@ async function pasture() {
   }
 }
 
+async function buyNewPet(isHungery = false) {
+  let weightsTemp = -1, nameTemp = ""
+  for (let key in petInfo) {
+    const onePet = petInfo[key]
+    const { name, price, weights } = onePet
+    if (price <= $.coins) {
+      if (weights > weightsTemp) {
+        weightsTemp = weights, nameTemp = name
+        $.petType = key
+      }
+    }
+  }
+  if (weightsTemp !== -1) {
+    await buy()
+    if (!isHungery) await buyNewPet()
+  } else {
+    console.log("你目前没有金币可以直接购买鸡")
+  }
+  async function buy() {
+    console.log("去买" + nameTemp)
+    await takeGetRequest("BuyNew")
+  }
+}
+
 async function doTask(j) {
   for (let i = 0; i < $.taskList.length; i++) {
     $.oneTask = $.taskList[i];
@@ -328,19 +429,19 @@ async function doTask(j) {
         await $.wait(2000);
       }
     } else {//每日任务
-      if($.oneTask.awardStatus === 1){
-        if(j===0){
+      if ($.oneTask.awardStatus === 1) {
+        if (j === 0) {
           console.log(`任务：${$.oneTask.taskName},已完成`);
         }
-      }else if($.oneTask.taskType === 4){
-        if($.oneTask.awardStatus === 2 && $.oneTask.completedTimes === $.oneTask.targetTimes){
+      } else if ($.oneTask.taskType === 4) {
+        if ($.oneTask.awardStatus === 2 && $.oneTask.completedTimes === $.oneTask.targetTimes) {
           console.log(`完成任务：${$.oneTask.taskName}`);
           await takeGetRequest('Award');
           await $.wait(2000);
-        }else if(j===0){
+        } else if (j === 0) {
           console.log(`任务：${$.oneTask.taskName},未完成`);
         }
-      }else if ($.oneTask.awardStatus === 2 && $.oneTask.taskCaller === 1) {//浏览任务
+      } else if ($.oneTask.awardStatus === 2 && $.oneTask.taskCaller === 1) {//浏览任务
         if (Number($.oneTask.completedTimes) > 0 && $.oneTask.completedTimes === $.oneTask.targetTimes) {
           console.log(`完成任务：${$.oneTask.taskName}`);
           await takeGetRequest('Award');
@@ -367,13 +468,14 @@ async function takeGetRequest(type) {
   let myRequest = ``;
   switch (type) {
     case 'GetHomePageInfo':
-      url = `https://m.jingxi.com/jxmc/queryservice/GetHomePageInfo?channel=7&sceneid=1001&activeid=null&activekey=null&isgift=1&isquerypicksite=1&_stk=channel%2Csceneid&_ste=1`;
+      url = `https://m.jingxi.com/jxmc/queryservice/GetHomePageInfo?channel=7&sceneid=1001&activeid=null&activekey=${$.activekey}&isgift=1&isquerypicksite=1&_stk=channel%2Csceneid&_ste=1`;
       url += `&h5st=${decrypt(Date.now(), '', '', url)}&_=${Date.now() + 2}&sceneval=2&g_login_type=1&callback=jsonpCBK${String.fromCharCode(Math.floor(Math.random() * 26) + "A".charCodeAt(0))}&g_ty=ls`;
       myRequest = getGetRequest(`GetHomePageInfo`, url);
       break;
     case 'GetUserTaskStatusList':
-      url = `https://m.jingxi.com/newtasksys/newtasksys_front/GetUserTaskStatusList?_=${Date.now() + 2}&source=jxmc&bizCode=jxmc&dateType=${$.dateType}&_stk=bizCode%2CdateType%2Csource&_ste=1`;
-      url += `&h5st=${decrypt(Date.now(), '', '', url)}&sceneval=2&g_login_type=1&g_ty=ajax`;
+      url = `https://m.jingxi.com/newtasksys/newtasksys_front/GetUserTaskStatusList?_=${Date.now() + 2}&source=${$.source}&bizCode=${$.bizCode}&dateType=${$.dateType}&showAreaTaskFlag=0&jxpp_wxapp_type=7`
+      url += `&_stk=${getStk(url)}`
+      url += `&_ste=1&h5st=${decrypt(Date.now(), '', '', url)}&sceneval=2&g_login_type=1&g_ty=ajax`
       myRequest = getGetRequest(`GetUserTaskStatusList`, url);
       break;
     case 'mowing': //割草
@@ -393,13 +495,15 @@ async function takeGetRequest(type) {
       myRequest = getGetRequest(`jump`, url);
       break;
     case 'DoTask':
-      url = `https://m.jingxi.com/newtasksys/newtasksys_front/DoTask?_=${Date.now() + 2}&source=jxmc&taskId=${$.oneTask.taskId}&bizCode=jxmc&configExtra=&_stk=bizCode%2CconfigExtra%2Csource%2CtaskId&_ste=1`;
-      url += `&h5st=${decrypt(Date.now(), '', '', url)}` + `&sceneval=2&g_login_type=1&g_ty=ajax`;
+      url = `https://m.jingxi.com/newtasksys/newtasksys_front/DoTask?_=${Date.now() + 2}&source=${$.source}&taskId=${$.oneTask.taskId}&bizCode=${$.bizCode}&configExtra=`;
+      url += `&_stk=${getStk(url)}`;
+      url += `&_ste=1&h5st=${decrypt(Date.now(), '', '', url)}&sceneval=2&g_login_type=1&g_ty=ajax`;
       myRequest = getGetRequest(`DoTask`, url);
       break;
     case 'Award':
-      url = `https://m.jingxi.com/newtasksys/newtasksys_front/Award?_=${Date.now() + 2}&source=jxmc&taskId=${$.oneTask.taskId}&bizCode=jxmc&_stk=bizCode%2Csource%2CtaskId&_ste=1`;
-      url += `&h5st=${decrypt(Date.now(), '', '', url)}` + `&sceneval=2&g_login_type=1&g_ty=ajax`;
+      url = `https://m.jingxi.com/newtasksys/newtasksys_front/Award?_=${Date.now() + 2}&source=${$.source}&taskId=${$.oneTask.taskId}&bizCode=${$.bizCode}`;
+      url += `&_stk=${getStk(url)}`;
+      url += `&_ste=1&h5st=${decrypt(Date.now(), '', '', url)}&sceneval=2&g_login_type=1&g_ty=ajax`;
       myRequest = getGetRequest(`Award`, url);
       break;
     case 'cow':
@@ -448,19 +552,43 @@ async function takeGetRequest(type) {
       myRequest = getGetRequest(`GetSignReward`, url);
       break;
     case 'DoMainTask':
-      url = `https://m.jingxi.com/jxmc/operservice/DoMainTask?channel=7&sceneid=1001&activeid=${$.activeid}&activekey=null&step=${$.step}&jxmc_jstoken=${token['farm_jstoken']}&timestamp=${token['timestamp']}&phoneid=${token['phoneid']}&_stk=activeid%2Cactivekey%2Cchannel%2Cjxmc_jstoken%2Cphoneid%2Csceneid%2Cstep%2Ctimestamp&_ste=1`
+      url = `https://m.jingxi.com/jxmc/operservice/DoMainTask?channel=7&sceneid=1001&activeid=${$.activeid}&activekey=${$.activekey}&step=${$.step}&jxmc_jstoken=${token['farm_jstoken']}&timestamp=${token['timestamp']}&phoneid=${token['phoneid']}&_stk=activeid%2Cactivekey%2Cchannel%2Cjxmc_jstoken%2Cphoneid%2Csceneid%2Cstep%2Ctimestamp&_ste=1`
       url += `&h5st=${decrypt(Date.now(), '', '', url)}&_=${Date.now() + 2}&sceneval=2&g_login_type=1&callback=jsonpCBK${String.fromCharCode(Math.floor(Math.random() * 26) + "A".charCodeAt(0))}&g_ty=ls`;
       myRequest = getGetRequest(`DoMainTask`, url);
       break;
     case 'GetCardInfo':
-      url = `https://m.jingxi.com/jxmc/queryservice/GetCardInfo?channel=7&sceneid=1001&activeid=${$.activeid}&activekey=null&jxmc_jstoken=${token['farm_jstoken']}&timestamp=${token['timestamp']}&phoneid=${token['phoneid']}&_stk=activeid%2Cactivekey%2Cchannel%2Cjxmc_jstoken%2Cphoneid%2Csceneid%2Ctimestamp&_ste=1`
+      url = `https://m.jingxi.com/jxmc/queryservice/GetCardInfo?channel=7&sceneid=1001&activeid=${$.activeid}&activekey=${$.activekey}&jxmc_jstoken=${token['farm_jstoken']}&timestamp=${token['timestamp']}&phoneid=${token['phoneid']}&_stk=activeid%2Cactivekey%2Cchannel%2Cjxmc_jstoken%2Cphoneid%2Csceneid%2Ctimestamp&_ste=1`
       url += `&h5st=${decrypt(Date.now(), '', '', url)}&_=${Date.now() + 2}&sceneval=2&g_login_type=1&callback=jsonpCBK${String.fromCharCode(Math.floor(Math.random() * 26) + "A".charCodeAt(0))}&g_ty=ls`;
       myRequest = getGetRequest(`GetCardInfo`, url);
       break;
     case 'DrawCard':
-      url = `https://m.jingxi.com/jxmc/operservice/DrawCard?channel=7&sceneid=1001&activeid=${$.activeid}&activekey=null&jxmc_jstoken=${token['farm_jstoken']}&timestamp=${token['timestamp']}&phoneid=${token['phoneid']}&_stk=activeid%2Cactivekey%2Cchannel%2Cjxmc_jstoken%2Cphoneid%2Csceneid%2Ctimestamp&_ste=1`
+      url = `https://m.jingxi.com/jxmc/operservice/DrawCard?channel=7&sceneid=1001&activeid=${$.activeid}&activekey=${$.activekey}&jxmc_jstoken=${token['farm_jstoken']}&timestamp=${token['timestamp']}&phoneid=${token['phoneid']}&_stk=activeid%2Cactivekey%2Cchannel%2Cjxmc_jstoken%2Cphoneid%2Csceneid%2Ctimestamp&_ste=1`
       url += `&h5st=${decrypt(Date.now(), '', '', url)}&_=${Date.now() + 2}&sceneval=2&g_login_type=1&callback=jsonpCBK${String.fromCharCode(Math.floor(Math.random() * 26) + "A".charCodeAt(0))}&g_ty=ls`;
       myRequest = getGetRequest(`DrawCard`, url);
+      break;
+    case 'Combine':
+      url = `https://m.jingxi.com/jxmc/operservice/Combine?channel=7&sceneid=1001&type=2&activeid=${$.activeid}&activekey=${$.activekey}&cardtype=${$.cardType}&jxmc_jstoken=${token['farm_jstoken']}&timestamp=${token['timestamp']}&phoneid=${token['phoneid']}`;
+      url += `&_stk=${getStk(url)}`;
+      url += `&_ste=1&h5st=${decrypt(Date.now(), '', '', url)}&_=${Date.now() + 2}&sceneval=2&g_login_type=1&callback=jsonpCBK${String.fromCharCode(Math.floor(Math.random() * 26) + "A".charCodeAt(0))}&g_ty=ls`;
+      myRequest = getGetRequest(`Combine`, url);
+      break;
+    case 'BuyNew':
+      url = `https://m.jingxi.com/jxmc/operservice/BuyNew?channel=7&sceneid=1001&activeid=${$.activeid}&activekey=${$.activekey}&type=${$.petType}&jxmc_jstoken=${token['farm_jstoken']}&timestamp=${token['timestamp']}&phoneid=${token['phoneid']}`;
+      url += `&_stk=${getStk(url)}`;
+      url += `&_ste=1&h5st=${decrypt(Date.now(), '', '', url)}&_=${Date.now() + 2}&sceneval=2&g_login_type=1&callback=jsonpCBK${String.fromCharCode(Math.floor(Math.random() * 26) + "A".charCodeAt(0))}&g_ty=ls`;
+      myRequest = getGetRequest(`BuyNew`, url);
+      break;
+    case 'GetUserLoveInfo':
+      url = `https://m.jingxi.com/jxmc/queryservice/GetUserLoveInfo?channel=7&sceneid=1001&activeid=${$.activeid}&activekey=${$.activekey}&jxmc_jstoken=${token['farm_jstoken']}&timestamp=${token['timestamp']}&phoneid=${token['phoneid']}`;
+      url += `&_stk=${getStk(url)}`;
+      url += `&_ste=1&h5st=${decrypt(Date.now(), '', '', url)}&_=${Date.now() + 2}&sceneval=2&g_login_type=1&callback=jsonpCBK${String.fromCharCode(Math.floor(Math.random() * 26) + "A".charCodeAt(0))}&g_ty=ls`;
+      myRequest = getGetRequest(`GetUserLoveInfo`, url);
+      break;
+    case 'DrawLoveHongBao':
+      url = `https://m.jingxi.com/jxmc/operservice/DrawLoveHongBao?channel=7&sceneid=1001&activeid=${$.activeid}&activekey=${$.activekey}&lovevalue=${$.lovevalue}&jxmc_jstoken=${token['farm_jstoken']}&timestamp=${token['timestamp']}&phoneid=${token['phoneid']}`;
+      url += `&_stk=${getStk(url)}`;
+      url += `&_ste=1&h5st=${decrypt(Date.now(), '', '', url)}&_=${Date.now() + 2}&sceneval=2&g_login_type=1&callback=jsonpCBK${String.fromCharCode(Math.floor(Math.random() * 26) + "A".charCodeAt(0))}&g_ty=ls`;
+      myRequest = getGetRequest(`DrawLoveHongBao`, url);
       break;
     default:
       console.log(`错误${type}`);
@@ -486,6 +614,28 @@ async function takeGetRequest(type) {
   })
 }
 
+function getStk(url) {
+  let arr = url.split('&').map(x => x.replace(/.*\?/, "").replace(/=.*/, ""))
+  return encodeURIComponent(arr.filter(x => x).sort().join(','))
+}
+
+function isNew(step, getNextStep = false) {
+  const charArr = [...Array(26).keys()].map(i => String.fromCharCode(i + 65)),
+      numArr = [...Array(12).keys()].map(i => i + 1)
+  if (getNextStep) {
+    const tempArr = step.split(`-`)
+    tempArr[0] = charArr[charArr.indexOf(tempArr[0]) + 1]
+    tempArr[1] = numArr[0]
+    return tempArr.join("-")
+  }
+  const tempArr = step.split(`-`)
+  if (tempArr.length < 2) return true
+  const num = numArr.length * (charArr.indexOf(tempArr[0])) + (+tempArr[1]),
+      orderArr = ['L', '6'] // 目标步骤
+  const numTo = numArr.length * (charArr.indexOf(orderArr[0])) + (+orderArr[1])
+  return num < numTo
+}
+
 function dealReturn(type, data) {
   switch (type) {
     case 'GetHomePageInfo':
@@ -494,7 +644,8 @@ function dealReturn(type, data) {
         $.homeInfo = data.data;
         $.activeid = $.homeInfo.activeid
         $.activekey = $.homeInfo.activekey || null
-        if($.homeInfo.giftcabbagevalue){
+        $.coins = $.homeInfo?.coins || 0;
+        if ($.homeInfo.giftcabbagevalue) {
           console.log(`登陆获得白菜：${$.homeInfo.giftcabbagevalue} 颗`);
         }
       } else {
@@ -511,9 +662,9 @@ function dealReturn(type, data) {
           $.mowingInfo = data.data;
           let add = ($.mowingInfo.addcoins || $.mowingInfo.addcoin) ? ($.mowingInfo.addcoins || $.mowingInfo.addcoin) : 0;
           console.log(`获得金币：${add}`);
-          if(Number(add) >0 ){
+          if (Number(add) > 0) {
             $.runFlag = true;
-          }else{
+          } else {
             $.runFlag = false;
             console.log(`未获得金币暂停${type}`);
           }
@@ -573,15 +724,15 @@ function dealReturn(type, data) {
       break;
     case 'help':
       data = JSON.parse(data.match(new RegExp(/jsonpCBK.?\((.*);*/))[1]);
-      if (data.ret === 0 && data.data.result === 0 ) {
+      if (data.ret === 0 && data.data.result === 0) {
         console.log(`助力成功`);
-      }else if (data.ret === 0 && data.data.result === 4){
+      } else if (data.ret === 0 && data.data.result === 4) {
         console.log(`助力次数已用完 或者已助力`);
         //$.canHelp = false;
-      }else if(data.ret === 0 && data.data.result === 5){
+      } else if (data.ret === 0 && data.data.result === 5) {
         console.log(`助力已满`);
         $.oneCodeInfo.max = true;
-      }else{
+      } else {
         console.log(JSON.stringify(data))
       }
       break;
@@ -634,12 +785,44 @@ function dealReturn(type, data) {
         }
       }
       break;
+    case 'Combine':
+      data = JSON.parse(data.match(new RegExp(/jsonpCBK.?\((.*);*/))[1]);
+      if (data.ret === 0) {
+        console.log(`兑换成功，当前小鸡数量：${data.data.currnum}`)
+      } else {
+        console.log(`Combine：${JSON.stringify(data)}`)
+      }
+      break;
+    case 'BuyNew':
+      data = JSON.parse(data.match(new RegExp(/jsonpCBK.?\((.*);*/))[1]);
+      if (data.ret === 0) {
+        const { costcoin, currnum, petid, type } = data.data
+        $.coins -= costcoin
+        console.log(`获得一只${petInfo[type].name}，宠物id：${petid}，当前拥有${currnum}只鸡`)
+      } else {
+        console.log(`BuyNew：${JSON.stringify(data)}`)
+      }
+      break;
+    case 'GetUserLoveInfo':
+      data = JSON.parse(data.match(new RegExp(/jsonpCBK.?\((.*);*/))[1]);
+      if (data.ret === 0) {
+        $.GetUserLoveInfo = data.data.lovelevel
+      }
+      break;
+    case 'DrawLoveHongBao':
+      data = JSON.parse(data.match(new RegExp(/jsonpCBK.?\((.*);*/))[1]);
+      if (data.ret === 0) {
+        console.log(`领取爱心奖励获得：${data.data.rewardinfo.prizevalue / 100}红包`)
+      } else {
+        console.log(`DrawLoveHongBao：${JSON.stringify(data)}`)
+      }
+      break;
     default:
       console.log(JSON.stringify(data));
   }
 }
 function getGetRequest(type, url) {
-  if(JXUserAgent){
+  if (JXUserAgent) {
     UA = JXUserAgent;
   }
   const method = `GET`;
@@ -652,7 +835,7 @@ function getGetRequest(type, url) {
     "Referer": "https://st.jingxi.com/",
     "Cookie": $.cookie
   };
-  return {url: url, method: method, headers: headers};
+  return { url: url, method: method, headers: headers };
 }
 function randomString(e) {
   e = e || 32;
@@ -696,7 +879,7 @@ async function requestAlgo() {
       'Pragma': 'no-cache',
       'Cache-Control': 'no-cache',
       'Accept': 'application/json',
-      'User-Agent':$.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
+      'User-Agent': $.isNode() ? (process.env.JD_USER_AGENT ? process.env.JD_USER_AGENT : (require('./USER_AGENTS').USER_AGENT)) : ($.getdata('JDUA') ? $.getdata('JDUA') : "jdapp;iPhone;9.4.4;14.3;network/4g;Mozilla/5.0 (iPhone; CPU iPhone OS 14_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1"),
       //'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
       'Content-Type': 'application/json',
       'Origin': 'https://st.jingxi.com',
@@ -799,47 +982,7 @@ function generateFp() {
     i += e[Math.random() * e.length | 0];
   return (i + Date.now()).slice(0, 16)
 }
-function getJxToken() {
-  var _0x1e2686 = {
-    'kElFH': 'abcdefghijklmnopqrstuvwxyz1234567890',
-    'MNRFu': function(_0x433b6d, _0x308057) {
-      return _0x433b6d < _0x308057;
-    },
-    'gkPpb': function(_0x531855, _0xce2a99) {
-      return _0x531855(_0xce2a99);
-    },
-    'KPODZ': function(_0x3394ff, _0x3181f7) {
-      return _0x3394ff * _0x3181f7;
-    },
-    'TjSvK': function(_0x2bc1b7, _0x130f17) {
-      return _0x2bc1b7(_0x130f17);
-    }
-  };
 
-  function _0xe18f69(_0x5487a9) {
-    let _0x3f25a6 = _0x1e2686['kElFH'];
-    let _0x2b8bca = '';
-    for (let _0x497a6a = 0x0; _0x1e2686['MNRFu'](_0x497a6a, _0x5487a9); _0x497a6a++) {
-      _0x2b8bca += _0x3f25a6[_0x1e2686['gkPpb'](parseInt, _0x1e2686['KPODZ'](Math['random'](), _0x3f25a6['length']))];
-    }
-    return _0x2b8bca;
-  }
-  return new Promise(_0x1b19fc => {
-    let _0x901291 = _0x1e2686['TjSvK'](_0xe18f69, 0x28);
-    let _0x5b2fde = (+new Date())['toString']();
-    if (!$.cookie['match'](/pt_pin=([^; ]+)(?=;?)/)) {
-      console['log']('此账号cookie填写不规范,你的pt_pin=xxx后面没分号(;)\n');
-      _0x1e2686['TjSvK'](_0x1b19fc, null);
-    }
-    let _0x1bb53f = $.cookie['match'](/pt_pin=([^; ]+)(?=;?)/)[0x1];
-    let _0x367e43 = $['md5']('' + decodeURIComponent(_0x1bb53f) + _0x5b2fde + _0x901291 + 'tPOamqCuk9NLgVPAljUyIHcPRmKlVxDy')['toString']();
-    _0x1e2686['TjSvK'](_0x1b19fc, {
-      'timestamp': _0x5b2fde,
-      'phoneid': _0x901291,
-      'farm_jstoken': _0x367e43
-    });
-  });
-}
 function TotalBean() {
   return new Promise(async resolve => {
     const options = {
@@ -880,6 +1023,47 @@ function TotalBean() {
       }
     })
   })
+}
+function getJxToken() {
+  var _0x1e2686 = {
+    'kElFH': 'abcdefghijklmnopqrstuvwxyz1234567890',
+    'MNRFu': function(_0x433b6d, _0x308057) {
+      return _0x433b6d < _0x308057;
+    },
+    'gkPpb': function(_0x531855, _0xce2a99) {
+      return _0x531855(_0xce2a99);
+    },
+    'KPODZ': function(_0x3394ff, _0x3181f7) {
+      return _0x3394ff * _0x3181f7;
+    },
+    'TjSvK': function(_0x2bc1b7, _0x130f17) {
+      return _0x2bc1b7(_0x130f17);
+    }
+  };
+
+  function _0xe18f69(_0x5487a9) {
+    let _0x3f25a6 = _0x1e2686['kElFH'];
+    let _0x2b8bca = '';
+    for (let _0x497a6a = 0x0; _0x1e2686['MNRFu'](_0x497a6a, _0x5487a9); _0x497a6a++) {
+      _0x2b8bca += _0x3f25a6[_0x1e2686['gkPpb'](parseInt, _0x1e2686['KPODZ'](Math['random'](), _0x3f25a6['length']))];
+    }
+    return _0x2b8bca;
+  }
+  return new Promise(_0x1b19fc => {
+    let _0x901291 = _0x1e2686['TjSvK'](_0xe18f69, 0x28);
+    let _0x5b2fde = (+new Date())['toString']();
+    if (!$.cookie['match'](/pt_pin=([^; ]+)(?=;?)/)) {
+      console['log']('此账号cookie填写不规范,你的pt_pin=xxx后面没分号(;)\n');
+      _0x1e2686['TjSvK'](_0x1b19fc, null);
+    }
+    let _0x1bb53f = $.cookie['match'](/pt_pin=([^; ]+)(?=;?)/)[0x1];
+    let _0x367e43 = $['md5']('' + decodeURIComponent(_0x1bb53f) + _0x5b2fde + _0x901291 + 'tPOamqCuk9NLgVPAljUyIHcPRmKlVxDy')['toString']();
+    _0x1e2686['TjSvK'](_0x1b19fc, {
+      'timestamp': _0x5b2fde,
+      'phoneid': _0x901291,
+      'farm_jstoken': _0x367e43
+    });
+  });
 }
 function t(n,t){var r=(65535&n)+(65535&t);return(n>>16)+(t>>16)+(r>>16)<<16|65535&r}function r(n,t){return n<<t|n>>>32-t}function e(n,e,o,u,c,f){return t(r(t(t(e,n),t(u,f)),c),o)}function o(n,t,r,o,u,c,f){return e(t&r|~t&o,n,t,u,c,f)}function u(n,t,r,o,u,c,f){return e(t&o|r&~o,n,t,u,c,f)}function c(n,t,r,o,u,c,f){return e(t^r^o,n,t,u,c,f)}function f(n,t,r,o,u,c,f){return e(r^(t|~o),n,t,u,c,f)}function i(n,r){n[r>>5]|=128<<r%32,n[14+(r+64>>>9<<4)]=r;var e,i,a,d,h,l=1732584193,g=-271733879,v=-1732584194,m=271733878;for(e=0;e<n.length;e+=16)i=l,a=g,d=v,h=m,g=f(g=f(g=f(g=f(g=c(g=c(g=c(g=c(g=u(g=u(g=u(g=u(g=o(g=o(g=o(g=o(g,v=o(v,m=o(m,l=o(l,g,v,m,n[e],7,-680876936),g,v,n[e+1],12,-389564586),l,g,n[e+2],17,606105819),m,l,n[e+3],22,-1044525330),v=o(v,m=o(m,l=o(l,g,v,m,n[e+4],7,-176418897),g,v,n[e+5],12,1200080426),l,g,n[e+6],17,-1473231341),m,l,n[e+7],22,-45705983),v=o(v,m=o(m,l=o(l,g,v,m,n[e+8],7,1770035416),g,v,n[e+9],12,-1958414417),l,g,n[e+10],17,-42063),m,l,n[e+11],22,-1990404162),v=o(v,m=o(m,l=o(l,g,v,m,n[e+12],7,1804603682),g,v,n[e+13],12,-40341101),l,g,n[e+14],17,-1502002290),m,l,n[e+15],22,1236535329),v=u(v,m=u(m,l=u(l,g,v,m,n[e+1],5,-165796510),g,v,n[e+6],9,-1069501632),l,g,n[e+11],14,643717713),m,l,n[e],20,-373897302),v=u(v,m=u(m,l=u(l,g,v,m,n[e+5],5,-701558691),g,v,n[e+10],9,38016083),l,g,n[e+15],14,-660478335),m,l,n[e+4],20,-405537848),v=u(v,m=u(m,l=u(l,g,v,m,n[e+9],5,568446438),g,v,n[e+14],9,-1019803690),l,g,n[e+3],14,-187363961),m,l,n[e+8],20,1163531501),v=u(v,m=u(m,l=u(l,g,v,m,n[e+13],5,-1444681467),g,v,n[e+2],9,-51403784),l,g,n[e+7],14,1735328473),m,l,n[e+12],20,-1926607734),v=c(v,m=c(m,l=c(l,g,v,m,n[e+5],4,-378558),g,v,n[e+8],11,-2022574463),l,g,n[e+11],16,1839030562),m,l,n[e+14],23,-35309556),v=c(v,m=c(m,l=c(l,g,v,m,n[e+1],4,-1530992060),g,v,n[e+4],11,1272893353),l,g,n[e+7],16,-155497632),m,l,n[e+10],23,-1094730640),v=c(v,m=c(m,l=c(l,g,v,m,n[e+13],4,681279174),g,v,n[e],11,-358537222),l,g,n[e+3],16,-722521979),m,l,n[e+6],23,76029189),v=c(v,m=c(m,l=c(l,g,v,m,n[e+9],4,-640364487),g,v,n[e+12],11,-421815835),l,g,n[e+15],16,530742520),m,l,n[e+2],23,-995338651),v=f(v,m=f(m,l=f(l,g,v,m,n[e],6,-198630844),g,v,n[e+7],10,1126891415),l,g,n[e+14],15,-1416354905),m,l,n[e+5],21,-57434055),v=f(v,m=f(m,l=f(l,g,v,m,n[e+12],6,1700485571),g,v,n[e+3],10,-1894986606),l,g,n[e+10],15,-1051523),m,l,n[e+1],21,-2054922799),v=f(v,m=f(m,l=f(l,g,v,m,n[e+8],6,1873313359),g,v,n[e+15],10,-30611744),l,g,n[e+6],15,-1560198380),m,l,n[e+13],21,1309151649),v=f(v,m=f(m,l=f(l,g,v,m,n[e+4],6,-145523070),g,v,n[e+11],10,-1120210379),l,g,n[e+2],15,718787259),m,l,n[e+9],21,-343485551),l=t(l,i),g=t(g,a),v=t(v,d),m=t(m,h);return[l,g,v,m]}function a(n){var t,r="",e=32*n.length;for(t=0;t<e;t+=8)r+=String.fromCharCode(n[t>>5]>>>t%32&255);return r}function d(n){var t,r=[];for(r[(n.length>>2)-1]=void 0,t=0;t<r.length;t+=1)r[t]=0;var e=8*n.length;for(t=0;t<e;t+=8)r[t>>5]|=(255&n.charCodeAt(t/8))<<t%32;return r}function h(n){return a(i(d(n),8*n.length))}function l(n,t){var r,e,o=d(n),u=[],c=[];for(u[15]=c[15]=void 0,o.length>16&&(o=i(o,8*n.length)),r=0;r<16;r+=1)u[r]=909522486^o[r],c[r]=1549556828^o[r];return e=i(u.concat(d(t)),512+8*t.length),a(i(c.concat(e),640))}function g(n){var t,r,e="";for(r=0;r<n.length;r+=1)t=n.charCodeAt(r),e+="0123456789abcdef".charAt(t>>>4&15)+"0123456789abcdef".charAt(15&t);return e}function v(n){return unescape(encodeURIComponent(n))}function m(n){return h(v(n))}function p(n){return g(m(n))}function s(n,t){return l(v(n),v(t))}function C(n,t){return g(s(n,t))}function A(n,t,r){return t?r?s(t,n):C(t,n):r?m(n):p(n)}$.md5=A
 // prettier-ignore
