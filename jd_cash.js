@@ -1,9 +1,6 @@
 /*
 签到领现金，每日2毛～5毛
 可互助，助力码每日不变，只变日期
-
-@感谢 小小 提供脚本雏形
-
 活动入口：京东APP搜索领现金进入
 更新时间：2021-06-07
 已支持IOS双京东账号,Node.js支持N个京东账号
@@ -93,8 +90,8 @@ async function jdCash() {
 
   await shareCodesFormat()
   // await helpFriends()
-  await getReward()
-  await getReward('2');
+  // await getReward()
+  // await getReward('2');
   $.exchangeBeanNum = 0;
   cash_exchange = $.isNode() ? (process.env.CASH_EXCHANGE ? process.env.CASH_EXCHANGE : `${cash_exchange}`) : ($.getdata('cash_exchange') ? $.getdata('cash_exchange') : `${cash_exchange}`);
   // if (cash_exchange === 'true') {
@@ -298,11 +295,11 @@ async function appdoTask(type,taskInfo) {
         } else {
           if (safeGet(data)) {
             data = JSON.parse(data);
-            if( data.code === 0){
+            if(data.code === 0) {
               console.log(`任务完成成功`)
               // console.log(data.data.result.taskInfos)
-            }else{
-              console.log(data)
+            } else {
+              console.log(JSON.stringify(data))
             }
           }
         }
@@ -435,21 +432,19 @@ function getSign(functionid, body, uuid) {
       "client":"apple",
       "clientVersion":"10.1.0"
     }
-    let HostArr = ['jdsign.cf', 'signer.nz.lu']
-    let Host = HostArr[Math.floor((Math.random() * HostArr.length))]
     let options = {
       url: `https://cdn.nz.lu/ddo`,
       body: JSON.stringify(data),
       headers: {
-        Host,
+        "Host": "jdsign.cf",
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/87.0.4280.88"
       },
-      timeout: 15000
+      timeout: 30 * 1000
     }
     $.post(options, (err, resp, data) => {
       try {
         if (err) {
-          console.log(`${JSON.stringify(err)}`)
+          console.log(JSON.stringify(err))
           console.log(`${$.name} getSign API请求失败，请检查网路重试`)
         } else {
 
@@ -482,11 +477,11 @@ function showMsg() {
 function readShareCode() {
   console.log(`开始`)
   return new Promise(async resolve => {
-    $.get({ url: ``, 'timeout': 10000 }, (err, resp, data) => {
+    $.get({url: `http://code.chiang.fun/api/v1/jd/jdcash/read/${randomCount}/`, 'timeout': 30000}, (err, resp, data) => {
       try {
         if (err) {
-          //console.log(`${JSON.stringify(err)}`)
-          //console.log(`${$.name} API请求失败，请检查网路重试`)
+          console.log(`${JSON.stringify(err)}`)
+          console.log(`${$.name} API请求失败，请检查网路重试`)
         } else {
           if (data) {
             console.log(`随机取${randomCount}个码放到您固定的互助码后面(不影响已有固定互助)`)
@@ -499,7 +494,7 @@ function readShareCode() {
         resolve(data);
       }
     })
-    await $.wait(10000);
+    await $.wait(30000);
     resolve()
   })
 }
@@ -514,6 +509,10 @@ function shareCodesFormat() {
       console.log(`由于您第${$.index}个京东账号未提供shareCode,将采纳本脚本自带的助力码\n`)
       const tempIndex = $.index > inviteCodes.length ? (inviteCodes.length - 1) : ($.index - 1);
       $.newShareCodes = inviteCodes[tempIndex].split('@');
+    }
+    const readShareCodeRes = await readShareCode();
+    if (readShareCodeRes && readShareCodeRes.code === 200) {
+      $.newShareCodes = [...new Set([...$.newShareCodes, ...(readShareCodeRes.data || [])])];
     }
     $.newShareCodes.map((item, index) => $.newShareCodes[index] = { "inviteCode": item, "shareDate": $.shareDate })
     console.log(`第${$.index}个京东账号将要助力的好友${JSON.stringify($.newShareCodes)}`)
