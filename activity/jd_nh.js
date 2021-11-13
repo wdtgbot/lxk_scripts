@@ -76,7 +76,7 @@ const ACT_ID = 'dzvm210168869301'
   })
 async function jdNh() {
   $.score = 0
-  await getShareCode()
+  // await getShareCode()
   await getIsvToken()
   await getIsvToken2()
   await getActCk()
@@ -92,29 +92,6 @@ async function jdNh() {
   await showMsg();
 }
 
-function getShareCode() {
-  return new Promise(resolve => {
-    $.get({url:'https://gitee.com/shylocks/updateTeam/raw/main/jd_nh.json',headers:{
-        'user-agent': 'JD4iPhone/167490 (iPhone; iOS 14.2; Scale/3.00)'
-      }},(err,resp,data)=>{
-      try {
-        if (err) {
-          console.log(`${err}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          if (safeGet(data)) {
-            data = JSON.parse(data);
-            shareUuid = data['shareUuid']
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
-    })
-  })
-}
 function getIsvToken() {
   let config = {
     url: 'https://api.m.jd.com/client.action?functionId=genToken',
