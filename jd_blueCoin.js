@@ -383,7 +383,7 @@ function smtg_obtainPrize(prizeId, timeout = 0, functionId = 'smt_exchangePrize'
               }
             }
           }
-          await smtg_obtainPrize(prizeId, 3000);
+          // await smtg_obtainPrize(prizeId, 3000);
         } catch (e) {
           $.logErr(e, resp);
         } finally {
