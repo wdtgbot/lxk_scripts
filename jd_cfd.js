@@ -100,7 +100,7 @@ if ($.isNode()) {
       break
     }
   }
-  await showMsg();
+  // await showMsg();
 })()
     .catch((e) => $.logErr(e))
     .finally(() => $.done());
