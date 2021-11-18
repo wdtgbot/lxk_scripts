@@ -1,23 +1,26 @@
+
 /*
-京喜财富岛 原作者smiek2221
-活动地址: 京喜APP-我的-京喜财富岛
-活动时间：长期
-更新时间：2021-07-13 12:00
-脚本兼容: QuantumultX, Surge,Loon, JSBox, Node.js
-=================================Quantumultx=========================
+京喜财富岛
+cron 5 * * * * jd_cfd.js
+更新时间：2021-11-16
+活动入口：京喜APP-我的-京喜财富岛
+from：https://github.com/he1pu/JDHelp/blob/main/jd_cfd.js
+已支持IOS双京东账号,Node.js支持N个京东账号
+脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
+============Quantumultx===============
 [task_local]
 #京喜财富岛
-1 * * * * https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_cfd.js, tag=京喜财富岛, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jxcfd.png, enabled=true
+1 * * * * jd_cfd.js, tag=京喜财富岛, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jxcfd.png, enabled=true
 
 ================Loon==============
 [Script]
-cron "1 * * * *" script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_cfd.js,tag=京喜财富岛
+cron "1 * * * *" script-path=jd_cfd.js,tag=京喜财富岛
 
 ===============Surge=================
-京喜财富岛 = type=cron,cronexp="1 * * * *",wake-system=1,timeout=3600,script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_cfd.js
+京喜财富岛 = type=cron,cronexp="1 * * * *",wake-system=1,timeout=3600,script-path=jd_cfd.js
 
 ============小火箭=========
-京喜财富岛 = type=cron,script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jd_cfd.js, cronexpr="1 * * * *", timeout=3600, enable=true
+京喜财富岛 = type=cron,script-path=jd_cfd.js, cronexpr="1 * * * *", timeout=3600, enable=true
  */
 const $ = new Env("京喜财富岛");
 const JD_API_HOST = "https://m.jingxi.com/";
@@ -52,7 +55,6 @@ if ($.isNode()) {
   for (let i = 0; i < cookiesArr.length; i++) {
     if (cookiesArr[i]) {
       cookie = cookiesArr[i];
-      $.cookie = cookie;
       $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
       $.index = i + 1;
       $.nickName = '';
@@ -290,7 +292,15 @@ function GetPropCardCenterInfo() {
                   break;
                 }
               }
-              if (!$.canuse) console.log(`无可用道具卡\n`)
+              for (let key of Object.keys(data.cardInfo.richcard)) {
+                let vo = data.cardInfo.richcard[key]
+                if (vo.dwCardNums > 0) {
+                  $.canuse = true;
+                  await UsePropCard(vo.strCardTypeIndex)
+                  break;
+                }
+              }
+              if (!$.canuse) console.log(`无可用道具卡`)
             } else {
               console.log(`有在使用中的道具卡，跳过使用\n`)
             }
@@ -316,9 +326,9 @@ function UsePropCard(strCardTypeIndex) {
           data = JSON.parse(data.replace(/\n/g, "").match(new RegExp(/jsonpCBK.?\((.*);*\)/))[1]);
           if (data.iRet === 0) {
             let cardName = strCardTypeIndex.split("_")[1];
-            console.log(`使用道具卡【${cardName}】成功\n`)
+            console.log(`使用道具卡【${cardName}】成功`)
           } else {
-            console.log(`使用道具卡失败：${JSON.stringify(data)}\n`)
+            console.log(`使用道具卡失败：${JSON.stringify(data)}`)
           }
         }
       } catch (e) {
@@ -606,7 +616,7 @@ async function getTakeAggrPage(type) {
               console.log(`${$.name} GetTakeAggrPage API请求失败，请检查网路重试`)
             } else {
               data = JSON.parse(data.replace(/\n/g, "").match(new RegExp(/jsonpCBK.?\((.*);*\)/))[1]);
-              console.log(`领助力奖励`)
+              console.log(`\n领助力奖励`)
               let helpNum = []
               for (let key of Object.keys(data.Data.Employee.EmployeeList)) {
                 let vo = data.Data.Employee.EmployeeList[key]
@@ -1090,6 +1100,7 @@ function getUserInfo(showInvite = true) {
             console.log(`财富岛好友互助码每次运行都变化,旧的当天有效`);
             console.log(`\n【京东账号${$.index}（${$.UserName}）的${$.name}好友互助码】${strMyShareId}`);
             $.shareCodes.push(strMyShareId)
+            await submitCode(strMyShareId, $.UserName);
           }
           $.info = {
             ...$.info,
@@ -1483,12 +1494,39 @@ function showMsg() {
   });
 }
 
-
+//提交互助码
+function submitCode(myInviteCode, user) {
+  return new Promise(async resolve => {
+    $.get({url: `http://www.helpu.cf/jdcodes/submit.php?code=${myInviteCode}&type=jxcfd&user=${user}`, timeout: 10000}, (err, resp, data) => {
+      try {
+        if (err) {
+          console.log(`${JSON.stringify(err)}`)
+          console.log(`${$.name} 提交助力码 API请求失败，请检查网路重试`)
+        } else {
+          if (data) {
+            //console.log(`随机取个${randomCount}码放到您固定的互助码后面(不影响已有固定互助)`)
+            data = JSON.parse(data);
+            if (data.code === 300) {
+              console.log("🏝互助码已提交🏝");
+            }else if (data.code === 200) {
+              console.log("🏝互助码提交成功🏝");
+            }
+          }
+        }
+      } catch (e) {
+        $.logErr(e, resp)
+      } finally {
+        resolve(data || {"code":500});
+      }
+    })
+    await $.wait(10000);
+    resolve({"code":500})
+  })
+}
 //格式化助力码
 function shareCodesFormat() {
   return new Promise(async resolve => {
-    $.newShareCodes = []
-    $.newShareCodes = [...new Set([...$.shareCodes])];
+    $.newShareCodes =  [...new Set([...$.shareCodes])];
     console.log(`您将要助力的好友${JSON.stringify($.newShareCodes)}`)
     resolve();
   })
