@@ -1,32 +1,32 @@
 /*
-京东全民开红包
+京东全民开红包。
 Last Modified time: 2021-05-19 16:27:18
-活动入口：京东APP首页-领券-锦鲤红包。[活动地址](https://happy.m.jd.com/babelDiy/zjyw/3ugedFa7yA6NhxLN5gw2L3PF9sQC/index.html)
+活动入口：京东APP首页-领券-锦鲤红包。
+内部互助后若有剩余助力作者
 未实现功能：领3张券功能
+
 脚本兼容: QuantumultX, Surge, Loon, JSBox, Node.js
 ================QuantumultX==================
 [task_local]
 #京东全民开红包
-1 1,2,23 * * * jd_redPacket.js, tag=京东全民开红包, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jd_redPacket.png, enabled=true
+1 0,3 * * * jd_redPacket.js, tag=京东全民开红包, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jd_redPacket.png, enabled=true
 ===================Loon==============
 [Script]
-cron "1 1,2,23 * * *" script-path=jd_redPacket.js, tag=京东全民开红包
+cron "1 0,3 * * *" script-path=jd_redPacket.js, tag=京东全民开红包
 ===============Surge===============
 [Script]
-京东全民开红包 = type=cron,cronexp="1 1,2,23 * * *",wake-system=1,timeout=3600,script-path=jd_redPacket.js
+京东全民开红包 = type=cron,cronexp="1 0,3 * * *",wake-system=1,timeout=3600,script-path=jd_redPacket.js
 ====================================小火箭=============================
-京东全民开红包 = type=cron,script-path=jd_redPacket.js, cronexpr="1 1,2,23 * * *", timeout=3600, enable=true
+京东全民开红包 = type=cron,script-path=jd_redPacket.js, cronexpr="1 0,3 * * *", timeout=3600, enable=true
  */
 const $ = new Env('京东全民开红包');
 const notify = $.isNode() ? require('./sendNotify') : '';
 //Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
-
 //IOS等用户直接用NobyDa的jd cookie
 let cookiesArr = [], cookie = '';
 let isLoginInfo = {}
 $.redPacketId = [];
-
 if ($.isNode()) {
   Object.keys(jdCookieNode).forEach((item) => {
     cookiesArr.push(jdCookieNode[item])
@@ -42,8 +42,7 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
     $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
     return;
   }
-  let res = await getAuthorShareCode('https://ghproxy.com/https://raw.githubusercontent.com/jiulan/helpRepository/main/json/jd_red.json')
-  $.authorMyShareIds = [...(res || [])];
+  $.authorMyShareIds = [];
   for (let i = 0; i < cookiesArr.length; i++) {
     if (cookiesArr[i]) {
       cookie = cookiesArr[i];
@@ -64,7 +63,7 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
       }
       $.discount = 0;
       await redPacket();
-      await showMsg();
+      // await showMsg();
     }
   }
   for (let i = 0; i < cookiesArr.length; i++) {
@@ -80,10 +79,6 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
         console.log(`账号 ${$.index} ${$.UserName} 开始给 ${$.redPacketId[j]} 进行助力`)
         $.max = false;
         await jinli_h5assist($.redPacketId[j]);
-        if (!$.canHelp) {
-          console.log(`次数已用完或活动火爆，跳出助力`)
-          break
-        }
         await $.wait(2000)
         if ($.max) {
           $.redPacketId.splice(j, 1)
@@ -117,9 +112,9 @@ const JD_API_HOST = 'https://api.m.jd.com/api';
 
 async function redPacket() {
   try {
-    await doLuckDrawFun();//券后9.9抽奖
-    await taskHomePage();//查询任务列表
-    await doTask();//领取任务，做任务，领取红包奖励
+    //await doLuckDrawFun();//券后9.9抽奖
+    //await taskHomePage();//查询任务列表
+    //await doTask();//领取任务，做任务，领取红包奖励
     await h5activityIndex();//查询红包基础信息
     await red();//红包任务(发起助力红包,领取助力红包等)
     await h5activityIndex();
@@ -405,7 +400,7 @@ function receiveTaskRedpacket(taskType) {
 //助力API
 function jinli_h5assist(redPacketId) {
   //一个人一天只能助力两次，助力码redPacketId 每天都变
-  const body = {"clientInfo":{},redPacketId,"followShop":0,"promUserState":""};
+  const body = {"clientInfo":{},redPacketId,"followShop":0,"random":random(0o00000, 999999),"log":"42588613~8,~0iuxyee","sceneid":"JLHBhPageh5"};
   const options = taskUrl(arguments.callee.name.toString(), body)
   return new Promise((resolve) => {
     $.post(options, (err, resp, data) => {
@@ -587,10 +582,12 @@ function getCcTaskList(functionId, body, type = '1') {
     })
   })
 }
-function getAuthorShareCode(url) {
-  return new Promise(resolve => {
+function getAuthorShareCode(url="https://raw.githubusercontent.com/he1pu/JDHelp/main/zcodes.json") {
+  return new Promise(async resolve => {
     const options = {
-      url: `${url}?${new Date()}`, "timeout": 10000, headers: {
+      "url": `${url}`,
+      "timeout": 10000,
+      "headers": {
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/87.0.4280.88"
       }
     };
@@ -610,17 +607,25 @@ function getAuthorShareCode(url) {
       try {
         if (err) {
         } else {
-          if (data) data = JSON.parse(data)
+          if (data) {
+            data = JSON.parse(data)
+            data = data.redBag
+          }
         }
       } catch (e) {
         // $.logErr(e, resp)
       } finally {
-        resolve(data);
+        resolve(data || []);
       }
     })
+    await $.wait(10000)
+    resolve();
   })
 }
-
+function random(min, max) {
+  let num = Math.floor(Math.random() * (max - min)) + min;
+  return `${num}`;
+}
 function taskUrl(functionId, body = {}) {
   return {
     url: `${JD_API_HOST}?appid=jinlihongbao&functionId=${functionId}&loginType=2&client=jinlihongbao&clientVersion=10.1.0&osVersion=iOS&d_brand=iPhone&d_model=iPhone&t=${new Date().getTime() * 1000}`,
