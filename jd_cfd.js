@@ -1235,7 +1235,7 @@ function browserTask(taskType) {
             await $.wait(2000);
           }
           //领取奖励
-          await awardTask(0, taskinfo);
+          await awardTask(0, taskinfo, bizCode);
         }
         break;
       case 1://成就任务
@@ -1282,13 +1282,13 @@ function doTask(taskId, type = 1) {
 }
 
 //领取奖励
-function awardTask(taskType, taskinfo) {
+function awardTask(taskType, taskinfo, bizCode = "jxbfd") {
   return new Promise((resolve) => {
     const {taskId, taskName} = taskinfo;
     const {ddwTaskId, strTaskName} = taskinfo;
     switch (taskType) {
       case 0://日常任务
-        $.get(taskListUrl(`Award`, `taskId=${taskId}`), (err, resp, data) => {
+        $.get(taskListUrl(`Award`, `taskId=${taskId}`, bizCode), (err, resp, data) => {
           try {
             if (err) {
               console.log(`${JSON.stringify(err)}`)
@@ -1512,6 +1512,34 @@ function submitCode(myInviteCode, user) {
             }else if (data.code === 200) {
               console.log("🏝互助码提交成功🏝");
             }
+          }
+        }
+      } catch (e) {
+        $.logErr(e, resp)
+      } finally {
+        resolve(data || {"code":500});
+      }
+    })
+    await $.wait(10000);
+    resolve({"code":500})
+  })
+}
+function readShareCode() {
+  return new Promise(async resolve => {
+    $.get({
+      url: `http://www.helpu.cf/jdcodes/getcode.php?type=jxcfd&num=10`,
+      'timeout': 10000
+    }, (err, resp, data) => {
+      try {
+        if (err) {
+          console.log(`${JSON.stringify(err)}`)
+          console.log(`${$.name} API请求失败，请检查网路重试`)
+        } else {
+          if (data) {
+            data = JSON.parse(data);
+            //console.log(`随机取10个码放到您固定的互助码后面(不影响已有固定互助)`);
+            //shareCodeDic[`${currentIndex}`] = data.data;
+            //console.log(`${data.data}`);
           }
         }
       } catch (e) {
