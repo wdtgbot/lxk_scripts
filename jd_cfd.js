@@ -1,4 +1,3 @@
-
 /*
 京喜财富岛
 cron 5 * * * * jd_cfd.js
@@ -35,6 +34,16 @@ let UA, UAInfo = {};
 let nowTimes;
 const randomCount = $.isNode() ? 20 : 3;
 $.appId = 10032;
+function oc(fn, defaultVal) {//optioanl chaining
+  try {
+    return fn()
+  } catch (e) {
+    return undefined
+  }
+}
+function nc(val1, val2) {//nullish coalescing
+  return val1 != undefined ? val1 : val2
+}
 if ($.isNode()) {
   Object.keys(jdCookieNode).forEach((item) => {
     cookiesArr.push(jdCookieNode[item])
@@ -150,9 +159,11 @@ async function cfd() {
     await $.wait(2000)
     await getTakeAggrPage('wxsign')
 
-    //使用道具
-    await $.wait(2000)
-    await GetPropCardCenterInfo()
+    if (new Date().getHours() < 22){
+      //使用道具
+      await $.wait(2000)
+      await GetPropCardCenterInfo()
+    }
 
     //助力奖励
     await $.wait(2000)
@@ -304,7 +315,7 @@ function GetPropCardCenterInfo() {
               }
               if (!$.canuse) console.log(`无可用道具卡`)
             } else {
-              console.log(`有在使用中的道具卡，跳过使用\n`)
+              console.log(`有在使用中的道具卡，跳过使用`)
             }
           }
         }
@@ -1082,6 +1093,7 @@ function getUserInfo(showInvite = true) {
           console.log(`${$.name} QueryUserInfo API请求失败，请检查网路重试`)
         } else {
           data = JSON.parse(data.replace(/\n/g, "").match(new RegExp(/jsonpCBK.?\((.*);*\)/))[1]);
+          $.showPp = nc(oc(() => data.AreaAddr.dwIsSHowPp), 0)
           const {
             buildInfo = {},
             ddwRichBalance,
@@ -1102,6 +1114,7 @@ function getUserInfo(showInvite = true) {
             console.log(`财富岛好友互助码每次运行都变化,旧的当天有效`);
             console.log(`\n【京东账号${$.index}（${$.UserName}）的${$.name}好友互助码】${strMyShareId}`);
             $.shareCodes.push(strMyShareId)
+            // await uploadShareCode(strMyShareId)
           }
           $.info = {
             ...$.info,
@@ -1170,7 +1183,7 @@ function getTaskList(taskType) {
   return new Promise(async (resolve) => {
     switch (taskType){
       case 0: //日常任务
-        $.get(taskListUrl("GetUserTaskStatusList"), async (err, resp, data) => {
+        $.get(taskListUrl("GetUserTaskStatusList", `taskId=0&showAreaTaskFlag=${$.showPp}`), async (err, resp, data) => {
           try {
             if (err) {
               console.log(`${JSON.stringify(err)}`)
@@ -1225,17 +1238,17 @@ function browserTask(taskType) {
     switch (taskType) {
       case 0://日常任务
         for (let i = 0; i < $.allTask.length; i++) {
-          const start = $.allTask[i].completedTimes, end = $.allTask[i].targetTimes
+          const start = $.allTask[i].completedTimes, end = $.allTask[i].targetTimes, bizCode = nc(oc(() => $.allTask[i].bizCode), "jxbfd")
           const taskinfo = $.allTask[i];
           console.log(`开始第${i + 1}个【📆日常任务】${taskinfo.taskName}\n`);
           for (let i = start; i < end; i++) {
             //做任务
             console.log(`【📆日常任务】${taskinfo.taskName} 进度：${i + 1}/${end}`)
-            await doTask(taskinfo.taskId);
+            await doTask(taskinfo.taskId, null, bizCode);
             await $.wait(2000);
           }
           //领取奖励
-          await awardTask(0, taskinfo,  "jxbfd");
+          await awardTask(0, taskinfo, bizCode);
         }
         break;
       case 1://成就任务
@@ -1259,11 +1272,12 @@ function browserTask(taskType) {
 }
 
 //做任务
-function doTask(taskId, type = 1) {
+function doTask(taskId, type = 1, bizCodeXx) {
   return new Promise(async (resolve) => {
     let bizCode = `jxbfd`;
     if (type === 2) bizCode = `jxbfddch`;
     if (type === 3) bizCode = `jxbfdprop`;
+    if (bizCodeXx) bizCode = bizCodeXx
     $.get(taskListUrl(`DoTask`, `taskId=${taskId}`, bizCode), (err, resp, data) => {
       try {
         if (err) {
@@ -1455,6 +1469,7 @@ function taskListUrl(function_path, body = '', bizCode = 'jxbfd') {
       "Host": "m.jingxi.com",
       "Accept": "*/*",
       "Accept-Encoding": "gzip, deflate, br",
+      "User-Agent": UA,
       "Accept-Language": "zh-CN,zh-Hans;q=0.9",
       "Referer": "https://st.jingxi.com/",
       "Cookie": cookie
@@ -1495,63 +1510,6 @@ function showMsg() {
   });
 }
 
-//提交互助码
-function submitCode(myInviteCode, user) {
-  return new Promise(async resolve => {
-    $.get({url: `http://www.helpu.cf/jdcodes/submit.php?code=${myInviteCode}&type=jxcfd&user=${user}`, timeout: 10000}, (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} 提交助力码 API请求失败，请检查网路重试`)
-        } else {
-          if (data) {
-            //console.log(`随机取个${randomCount}码放到您固定的互助码后面(不影响已有固定互助)`)
-            data = JSON.parse(data);
-            if (data.code === 300) {
-              console.log("🏝互助码已提交🏝");
-            }else if (data.code === 200) {
-              console.log("🏝互助码提交成功🏝");
-            }
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data || {"code":500});
-      }
-    })
-    await $.wait(10000);
-    resolve({"code":500})
-  })
-}
-function readShareCode() {
-  return new Promise(async resolve => {
-    $.get({
-      url: `http://www.helpu.cf/jdcodes/getcode.php?type=jxcfd&num=10`,
-      'timeout': 10000
-    }, (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          if (data) {
-            data = JSON.parse(data);
-            //console.log(`随机取10个码放到您固定的互助码后面(不影响已有固定互助)`);
-            //shareCodeDic[`${currentIndex}`] = data.data;
-            //console.log(`${data.data}`);
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data || {"code":500});
-      }
-    })
-    await $.wait(10000);
-    resolve({"code":500})
-  })
-}
 //格式化助力码
 function shareCodesFormat() {
   return new Promise(async resolve => {
@@ -1665,7 +1623,7 @@ async function requestAlgo() {
       "expandParams": ""
     })
   }
-  new Promise(async resolve => {
+  return new Promise(async resolve => {
     $.post(options, (err, resp, data) => {
       try {
         if (err) {
