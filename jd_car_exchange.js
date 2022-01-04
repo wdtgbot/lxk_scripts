@@ -1,60 +1,37 @@
 /*
  京东汽车兑换，500赛点兑换500京豆长期活动
  活动入口：京东APP首页-京东汽车-屏幕右中部，车主福利
- 更新地址：https://github.com/X1a0He/jd_scripts_fixed/
- 已支持IOS, Node.js支持N个京东账号
- 脚本兼容: Node.js
  修复兑换api，Fix time:2021-09-06 22:02
-cron 59 23 * * * jd_car_exchange.js
+cron "0,50 0 * * *" jd_car_exchange.js
  */
 const $ = new Env('京东汽车兑换');
-//Node.js用户请在jdCookie.js处填写京东ck;
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
-//IOS等用户直接用NobyDa的jd cookie
-let cookiesArr = [],
-    cookie = '',
-    message;
-if ($.isNode()) {
+let cookiesArr = [], cookie = '', message;
+if($.isNode()){
   Object.keys(jdCookieNode).forEach((item) => {
     cookiesArr.push(jdCookieNode[item])
   })
-  if (process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {};
+  if(process.env.JD_DEBUG && process.env.JD_DEBUG === 'false') console.log = () => {
+  };
 } else {
   cookiesArr = [$.getdata('CookieJD'), $.getdata('CookieJD2'), ...jsonParse($.getdata('CookiesJD') || "[]").map(item => item.cookie)].filter(item => !!item);
 }
-Date.prototype.Format = function(fmt) { //author: meizz
-  var o = {
-    "M+": this.getMonth() + 1, //月份
-    "d+": this.getDate(), //日
-    "h+": this.getHours(), //小时
-    "m+": this.getMinutes(), //分
-    "s+": this.getSeconds(), //秒
-    "S": this.getMilliseconds() //毫秒
-  };
-  if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-  for (var k in o)
-    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-  return fmt;
-}
 const JD_API_HOST = 'https://car-member.jd.com/api/';
-!(async () => {
-  if (!cookiesArr[0]) {
+!(async() => {
+  if(!cookiesArr[0]){
     $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', { "open-url": "https://bean.m.jd.com/bean/signIndex.action" });
     return;
   }
-  for (let i = 0; i < cookiesArr.length; i++) {
-    if (cookiesArr[i]) {
-      cookie = cookiesArr[i];
-      $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
-      $.index = i + 1;
-      $.isLogin = true;
-      $.nickName = '';
-      message = '';
-      console.log(`=====京东账号${$.index} ${$.UserName}=====`)
-      await wait()
-      await exchange()
-      console.log(`请求兑换API后时间 ${(new Date()).Format("yyyy-MM-dd hh:mm:ss | S")}`);
-    }
+  for(let i = 0; i < cookiesArr.length; i++){
+    cookie = cookiesArr[i];
+    $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
+    $.index = i + 1;
+    $.isLogin = true;
+    $.nickName = '';
+    message = '';
+    console.log(`=====京东账号${$.index} ${$.UserName}=====`)
+    await exchange();
+    await $.wait(1000)
   }
 })().catch((e) => {
   $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '')
@@ -62,39 +39,29 @@ const JD_API_HOST = 'https://car-member.jd.com/api/';
   $.done();
 })
 
-async function wait(starttime = 59.9) {
-  const nowtime = new Date().Format("s.S")
-  if ($.index == 1 && nowtime < starttime) {
-    const sleeptime = (starttime - nowtime) * 1000;
-    console.log(`等待时间 ${sleeptime / 1000}`);
-    await $.wait(sleeptime)
-  }
-}
-
-function exchange() {
+function exchange(){
   return new Promise(resolve => {
     $.get(taskUrl('v1/user/exchange/bean/check'), (err, resp, data) => {
-      try {
-        if (err) {
+      try{
+        if(err){
           console.log(`${JSON.stringify(err)}`)
           console.log(`${$.name} API请求失败，请检查网路重试\n`)
         } else {
-          if (safeGet(data)) {
-            console.debug('exchange:',data)
-            // data = JSON.parse(data);
-            // if (data.status) console.log(`兑换结果：${data.data.reason}`);
+          if(safeGet(data)){
+            data = JSON.parse(data);
+            if(data.status) console.log(`兑换结果：${data.data.reason}`);
           }
         }
-      } catch (e) {
+      } catch(e){
         $.logErr(e, resp)
-      } finally {
+      } finally{
         resolve();
       }
     })
   })
 }
 
-function taskUrl(function_id, body = {}) {
+function taskUrl(function_id, body = {}){
   return {
     url: `${JD_API_HOST}${function_id}?timestamp=${new Date().getTime() + new Date().getTimezoneOffset() * 60 * 1000 + 8 * 60 * 60 * 1000}`,
     headers: {
@@ -111,23 +78,23 @@ function taskUrl(function_id, body = {}) {
   }
 }
 
-function safeGet(data) {
-  try {
-    if (typeof JSON.parse(data) == "object") {
+function safeGet(data){
+  try{
+    if(typeof JSON.parse(data) == "object"){
       return true;
     }
-  } catch (e) {
+  } catch(e){
     console.log(e);
     console.log(`京东服务器访问数据为空，请检查自身设备网络情况`);
     return false;
   }
 }
 
-function jsonParse(str) {
-  if (typeof str == "string") {
-    try {
+function jsonParse(str){
+  if(typeof str == "string"){
+    try{
       return JSON.parse(str);
-    } catch (e) {
+    } catch(e){
       console.log(e);
       $.msg($.name, '', '请勿随意在BoxJs输入框修改内容\n建议通过脚本去获取cookie')
       return [];

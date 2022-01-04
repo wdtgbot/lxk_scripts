@@ -323,10 +323,10 @@ class JDJRValidator {
         if (res.headers['content-encoding'] === 'gzip') {
           const unzipStream = new stream.PassThrough();
           stream.pipeline(
-            response,
-            zlib.createGunzip(),
-            unzipStream,
-            reject,
+              response,
+              zlib.createGunzip(),
+              unzipStream,
+              reject,
           );
           res = unzipStream;
         }
@@ -363,9 +363,9 @@ class JDJRValidator {
 function getCoordinate(c) {
   function string10to64(d) {
     var c = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-~".split("")
-      , b = c.length
-      , e = +d
-      , a = [];
+        , b = c.length
+        , e = +d
+        , a = [];
     do {
       mod = e % b;
       e = (e - mod) / b;
