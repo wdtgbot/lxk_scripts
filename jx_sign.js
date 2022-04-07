@@ -8,17 +8,17 @@ cron 20 1,8 * * * jx_sign.js
 ============Quantumultx===============
 [task_local]
 #京喜签到
-20 1,8 * * * jx_sign.js, tag=京喜签到, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
+20 1,8 * * * https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jx_sign.js, tag=京喜签到, img-url=https://raw.githubusercontent.com/58xinian/icon/master/jxcfd.png, enabled=true
 
 ================Loon==============
 [Script]
-cron "20 1,8 * * *" script-path=jx_sign.js,tag=京喜签到
+cron "20 1,8 * * *" script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jx_sign.js,tag=京喜签到
 
 ===============Surge=================
-京喜签到 = type=cron,cronexp="20 1,8 * * *",wake-system=1,timeout=3600,script-path=jx_sign.js
+京喜签到 = type=cron,cronexp="20 1,8 * * *",wake-system=1,timeout=3600,script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jx_sign.js
 
 ============小火箭=========
-京喜签到 = type=cron,script-path=jx_sign.js, cronexpr="20 1,8 * * *", timeout=3600, enable=true
+京喜签到 = type=cron,script-path=https://raw.githubusercontent.com/Aaron-lv/sync/jd_scripts/jx_sign.js, cronexpr="20 1,8 * * *", timeout=3600, enable=true
  */
 const $ = new Env('京喜签到');
 const JD_API_HOST = "https://m.jingxi.com/";
@@ -194,10 +194,13 @@ async function main(help = true) {
 
 // 查询信息
 function signhb(type = 1) {
-  let body = '';
-  if ($.signhb_source === '5') body = `type=0&signhb_source=${$.signhb_source}&smp=&ispp=1&tk=`
+  let functionId = 'signhb/query', body = '';
+  if ($.signhb_source === '5') {
+    functionId = 'signhb/query_jxpp'
+    body = `type=0&signhb_source=${$.signhb_source}&smp=&ispp=1&tk=`
+  }
   return new Promise((resolve) => {
-    $.get(taskUrl("signhb/query", body), async (err, resp, data) => {
+    $.get(taskUrl(functionId, body), async (err, resp, data) => {
       try {
         if (err) {
           console.log(JSON.stringify(err));
@@ -278,8 +281,16 @@ function signhb(type = 1) {
 
 // 签到 助力
 function helpSignhb(smp = '') {
+  let functionId, body;
+  if ($.signhb_source === '5') {
+    functionId = 'signhb/query_jxpp'
+    body = `type=1&signhb_source=${$.signhb_source}&smp=&ispp=1&tk=`
+  } else {
+    functionId = 'signhb/query'
+    body = `type=1&signhb_source=${$.signhb_source}&smp=${smp}&ispp=0&tk=`
+  }
   return new Promise((resolve) => {
-    $.get(taskUrl("signhb/query", `type=1&signhb_source=${$.signhb_source}&smp=${smp}&ispp=1&tk=`), async (err, resp, data) => {
+    $.get(taskUrl(functionId, body), async (err, resp, data) => {
       try {
         if (err) {
           console.log(JSON.stringify(err))
@@ -312,14 +323,16 @@ function helpSignhb(smp = '') {
 
 // 任务
 function dotask(task) {
-  let body;
+  let functionId, body;
   if ($.signhb_source === '5') {
+    functionId = 'signhb/dotask_jxpp'
     body = `task=${task}&signhb_source=${$.signhb_source}&ispp=1&sqactive=${$.sqactive}&tk=`
   } else {
-    body = `task=${task}&signhb_source=${$.signhb_source}&ispp=1&tk=`
+    functionId = 'signhb/dotask'
+    body = `task=${task}&signhb_source=${$.signhb_source}&ispp=0&sqactive=&tk=`
   }
   return new Promise((resolve) => {
-    $.get(taskUrl("signhb/dotask", body), async (err, resp, data) => {
+    $.get(taskUrl(functionId, body), async (err, resp, data) => {
       try {
         if (err) {
           console.log(JSON.stringify(err));
@@ -346,14 +359,16 @@ function dotask(task) {
 
 // 宝箱
 function bxdraw() {
-  let body;
+  let functionId, body;
   if ($.signhb_source === '5') {
+    functionId = "signhb/bxdraw_jxpp"
     body = `ispp=1&sqactive=${$.sqactive}&tk=`
   } else {
-    body = `ispp=1&tk=`
+    functionId = "signhb/bxdraw"
+    body = `ispp=0&sqactive=&tk=`
   }
   return new Promise((resolve) => {
-    $.get(taskUrl("signhb/bxdraw", body), async (err, resp, data) => {
+    $.get(taskUrl(functionId, body), async (err, resp, data) => {
       try {
         if (err) {
           console.log(JSON.stringify(err));
