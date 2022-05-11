@@ -381,6 +381,7 @@ function doTask2() {
     $.post(taskUrl('beanHomeTask', body), (err, resp, data) => {
       try {
         if (err) {
+          $.doneState = true
           console.log(`${JSON.stringify(err)}`)
           console.log(`${$.name} API请求失败，请检查网路重试`)
         } else {
