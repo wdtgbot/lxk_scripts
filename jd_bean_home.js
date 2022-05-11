@@ -400,6 +400,7 @@ function doTask2() {
           }
         }
       } catch (e) {
+        $.doneState = true
         $.logErr(e, resp)
       } finally {
         resolve();
